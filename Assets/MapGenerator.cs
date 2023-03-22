@@ -126,6 +126,7 @@ public class MapGenerator : MonoBehaviour
             ground.name = $"Ground: {i}";
             ground.transform.position = new Vector3(0, i, 0);
             ground.tag = "Ground";
+            ground.layer = 3;
 
             int[,,] temp = new int[worldWidth, 1, worldDepth];
 
