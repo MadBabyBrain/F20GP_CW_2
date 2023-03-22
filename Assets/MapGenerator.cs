@@ -44,10 +44,10 @@ public class MapGenerator : MonoBehaviour
 
     private int wave;
     [SerializeField]
-    private Enemy enemy;
+    private GameObject enemy;
     private Vector3 start, end;
     private float DistanceApart; // distance between start vec and end vec
-    private List<Vector3> epath;
+    private List<Vector3> epath;    // PLease rename too confusing for Jakub's small brain
     private List<Vector3> eMovement;
 
     private int currentBuilding;
@@ -321,10 +321,11 @@ public class MapGenerator : MonoBehaviour
 
     void spawnEnemy()
     {
-
-        Enemy e = GameObject.Instantiate(this.enemy, this.eMovement[0] + Vector3.one * 0.5f, Quaternion.identity);
-        e.transform.parent = this.enemyObj.transform;
-        e.init(this.eMovement);
+        GameObject e = Instantiate(enemy, eMovement[0] + Vector3.one * 0.5f, Quaternion.identity);
+        e.transform.parent = enemyObj.transform;
+        EnemyStateManager esm = e.GetComponent<EnemyStateManager>();
+        esm.path = eMovement;
+        // e.init(this.eMovement); place holder enemy type
     }
 
     /* ================================================================================================================================ */

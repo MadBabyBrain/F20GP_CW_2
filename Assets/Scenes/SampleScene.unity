@@ -140,7 +140,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 873088626407187607, guid: 2a60af72e41f16f429d3d46f2cd2bc19, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1299249868017721050, guid: 2a60af72e41f16f429d3d46f2cd2bc19, type: 3}
       propertyPath: m_RootOrder
@@ -193,6 +193,10 @@ PrefabInstance:
     - target: {fileID: 2320028918983091442, guid: 2a60af72e41f16f429d3d46f2cd2bc19, type: 3}
       propertyPath: m_Name
       value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 2320028918983091442, guid: 2a60af72e41f16f429d3d46f2cd2bc19, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4631778981236675882, guid: 2a60af72e41f16f429d3d46f2cd2bc19, type: 3}
       propertyPath: m_LocalPosition.y
@@ -420,7 +424,7 @@ MonoBehaviour:
   __highlight: {fileID: 2100000, guid: 0e6273b8306ad4042914cdb541d644ad, type: 2}
   __path: {fileID: 2100000, guid: 57bbe48bb9cce354099af11f7a8bbb69, type: 2}
   __wall: {fileID: 2100000, guid: bd3fd173f3b09794cba0ad521d1fe687, type: 2}
-  enemy: {fileID: 2582053175490348700, guid: 35ab36cc100471b4480679c813f2c32d, type: 3}
+  enemy: {fileID: 1883963459666211774, guid: 8249c2f47d6c49e47a59140706368f55, type: 3}
   buildings:
   - {fileID: 109835482998888144, guid: d53e2719ffa95444597523d7ee790876, type: 3}
   - {fileID: 1034224089138803824, guid: 838f5f8d496f190438e7c1c48d9c232b, type: 3}

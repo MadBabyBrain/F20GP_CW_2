@@ -19,13 +19,13 @@ public class EnemyStateWalking : EnemyStateBase
         // runs every update so commented out
         //Debug.Log("Execute walking state");
 
-        if (Vector3.Distance(esm.player.transform.position, esm.transform.position) <= 5) {
-            esm.updateState(esm.attack);
-        }
-
-        // StartCoroutine(move());
         if (!isRunning) InvokeRepeating("move", 1f, 1f);
         isRunning = true;
+
+        if (Vector3.Distance(esm.player.transform.position, esm.transform.position) <= 5) {
+            CancelInvoke();
+            esm.updateState(esm.attack);
+        }
     }
 
     // public override void updateState()

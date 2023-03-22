@@ -43,7 +43,6 @@ public class AttackState : BaseState
             sm.rb.AddForce(sm.transform.up * 10, ForceMode.Impulse);
         }
         
-        
     }
 
     private Vector3 getMoveDirection(){

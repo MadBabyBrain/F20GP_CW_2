@@ -24,7 +24,7 @@ public class EnemyStateManager : MonoBehaviour
     {
         attack = this.gameObject.AddComponent<EnemyStateAttack>();
         walking = this.gameObject.AddComponent<EnemyStateWalking>();
-
+        player = GameObject.FindGameObjectWithTag("Player");
         // attack = new EnemyStateAttack();
         // walking = new EnemyStateWalking();
 

@@ -16,7 +16,9 @@ public class EnemyStateAttack : EnemyStateBase
     public override void execute()
     {
         // Debug.Log("Execute attacking state");
-        
+
+        Debug.Log("GET FUCKED :middle_finger:");
+
         if (Vector3.Distance(esm.player.transform.position, esm.transform.position) > 5) {
             esm.updateState(esm.walking);
         }
