@@ -16,7 +16,7 @@ public class EnemyStateManager : MonoBehaviour
     public List<Vector3> path;
     public int pathIndex = 0;
 
-    public float health = 100;
+    public float health = 100.0f;
     public float speed = 1.0f;
 
     // Start is called before the first frame update
@@ -45,11 +45,13 @@ public class EnemyStateManager : MonoBehaviour
         currentState.enter(this);
     }
 
-    public void takeDamage(float damage){
+    public void takeDamage(float damage)
+    {
         health -= damage;
 
-        if (health <= 0) {
+        if (health <= 0)
+        {
             Destroy(gameObject);
         }
-    } 
+    }
 }
