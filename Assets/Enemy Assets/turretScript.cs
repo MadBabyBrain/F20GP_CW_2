@@ -5,22 +5,37 @@ using UnityEngine;
 public class turretScript : MonoBehaviour
 {
 
-    Transform Enemy;
+    List<EnemyStateManager> enemies;
+    EnemyStateManager target;
     float distance;
-    public float MaxDist;
-    public Transform t_Head;
-    // Start is called before the first frame update
-    void Start()
+    public float maxDist;
+    public Transform tHead;
+
+    void getEnemiesInRange(out List<EnemyStateManager> container)
     {
-        Enemy = GameObject.FindGameObjectWithTag("enemy").transform;
+        container = new List<EnemyStateManager>();
+        Collider[] hitColliders = Physics.OverlapSphere(this.gameObject.transform.position, distance, LayerMask.NameToLayer("Enemy"));
+        foreach (var hitCollider in hitColliders)
+        {
+            container.Add(hitCollider);
+        }
     }
 
-    // Update is called once per frame
     void Update()
     {
-        distance = Vector3.Distance(Enemy.position, transform.position);
-        if(distance <= MaxDist){
-            t_Head.LookAt(Enemy);
-        }
+        // works only on one enemy
+        // distance = Vector3.Distance(enemy.position, transform.position);
+        // if (distance <= maxDist)
+        // {
+        //     tHead.LookAt(enemy);
+        // }
+
+        // enemies <- enemies within range // overlap sphere
+        // target <- enemy in enemies closest to base
+        // shoot(target) // update target via state manager
+        // if target > range or target == dead
+        //      target <- enemy in enemies closest to base
+
+
     }
 }
