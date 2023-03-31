@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using TMPro;
 
 public class MapGenerator : MonoBehaviour
 {
@@ -50,18 +51,31 @@ public class MapGenerator : MonoBehaviour
     private List<Vector3> epath;
     private List<Vector3> eMovement;
 
-    private int currentBuilding;
+    public int currentBuilding;
     [SerializeField]
     private List<GameObject> buildings;
 
+    public int money;
     private Dictionary<int, int> costs;
+
+    public bool isBuilding;
+
+    private GameObject buildingObj;
+
+    /* ==================== ====================  ==================== ==================== */
+
+    TextMeshProUGUI moneyText;
+    GameObject startpos, endpos;
 
     /* ==================== ====================  ==================== ==================== */
 
     private void Start()
     {
+        this.moneyText = GameObject.Find("MoneyText").GetComponent<TextMeshProUGUI>();
+
         // this.buildings = new List<GameObject>();
         this.costs = new Dictionary<int, int>();
+        this.money = 100;
 
         this.costs.Add(0, 10);
         this.costs.Add(1, 20);
@@ -81,6 +95,8 @@ public class MapGenerator : MonoBehaviour
         this.octaves = 3;
         this.offset = new Vector2(0, 0);
         this.DistanceApart = 40f;
+
+        this.isBuilding = true;
 
         do
         {
@@ -153,7 +169,7 @@ public class MapGenerator : MonoBehaviour
 
         enemyObj = new GameObject();
         enemyObj.transform.parent = this.transform;
-        enemyObj.name = "Enemys";
+        enemyObj.name = "Enemies";
 
         walls = new GameObject();
         walls.transform.parent = this.transform;
@@ -161,6 +177,11 @@ public class MapGenerator : MonoBehaviour
         walls.layer = LayerMask.NameToLayer("Walls");
         walls.AddComponent<MeshFilter>();
         walls.AddComponent<MeshCollider>();
+
+
+        this.buildingObj = new GameObject();
+        this.buildingObj.transform.name = "Buildings";
+        this.buildingObj.transform.parent = this.transform;
 
         // CreateVerts();
         // CreateTris();
@@ -174,22 +195,36 @@ public class MapGenerator : MonoBehaviour
         this.cam.transform.position = new Vector3(this.worldWidth / 2, 10, this.worldDepth / 2);
         this.cam.GetComponent<Camera>().orthographicSize = 30;
 
+
+        GameObject o = GameObject.Find("Text");
+        this.startpos = GameObject.Instantiate(o, this.start, Quaternion.identity);
+        this.startpos.transform.name = "EndPos";
+        this.startpos.transform.SetParent(GameObject.Find("Canvas").transform);
+        this.startpos.GetComponent<TextMeshProUGUI>().text = "Start";
+
+        this.endpos = GameObject.Instantiate(o, this.start, Quaternion.identity);
+        this.endpos.transform.name = "StartPos";
+        this.endpos.transform.SetParent(GameObject.Find("Canvas").transform);
+        this.endpos.GetComponent<TextMeshProUGUI>().text = "End";
     }
 
     /* ================================================================================================================================ */
 
     private void Update()
     {
+        this.startpos.transform.position = this.cam.GetComponent<Camera>().WorldToScreenPoint(this.start);
+        this.endpos.transform.position = this.cam.GetComponent<Camera>().WorldToScreenPoint(this.end);
+
         for (int k = ((int)KeyCode.Alpha0); k < ((int)KeyCode.Alpha9); k++)
         {
             if (Input.GetKeyDown((KeyCode)k))
             {
-                this.currentBuilding = k;
+                this.currentBuilding = k - 48;
             }
         }
 
 
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && this.isBuilding)
         {
             Ray ray = this.cam.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
@@ -202,7 +237,35 @@ public class MapGenerator : MonoBehaviour
 
                 if (y >= wallmap.GetLength(1)) return;
 
-                StartCoroutine(placeWall(x, y, z));
+                if (this.money >= this.costs[this.currentBuilding])
+                {
+                    if (this.currentBuilding == 0)
+                    {
+                        StartCoroutine(placeWall(x, y, z));
+                    }
+                    else
+                    {
+                        if (hit.transform.parent.name == "Walls")
+                        {
+                            GameObject obj = Instantiate(this.buildings[this.currentBuilding], Vector3.zero, Quaternion.identity);
+                            obj.transform.parent = this.buildingObj.transform;
+                            obj.layer = LayerMask.NameToLayer("Walls");
+
+                            CreateMeshFromChildren(obj, __material);
+
+                            obj.transform.position = new Vector3(x + 0.5f, y, z + 0.5f);
+
+                            if (obj.GetComponent<MeshCollider>() == null) obj.AddComponent<MeshCollider>();
+                            obj.GetComponent<MeshFilter>().mesh.RecalculateNormals();
+                            obj.GetComponent<MeshFilter>().mesh.RecalculateBounds();
+                            obj.GetComponent<MeshCollider>().sharedMesh = obj.GetComponent<MeshFilter>().mesh;
+
+                            this.money -= this.costs[this.currentBuilding];
+                        }
+                    }
+                }
+
+                this.moneyText.text = "Gold: " + this.money;
 
                 /*
                 wallmap[x, y, z] = 1;
@@ -250,7 +313,7 @@ public class MapGenerator : MonoBehaviour
                 */
             }
         }
-        else if (Input.GetMouseButtonDown(1))
+        else if (Input.GetMouseButtonDown(1) && this.isBuilding)
         {
             Ray ray = this.cam.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
@@ -261,7 +324,30 @@ public class MapGenerator : MonoBehaviour
                 // Debug.Log(hit.point);
                 // Debug.Log(new Vector3(x, y, z));
 
-                StartCoroutine(removeWall(x, y, z, hit));
+                if (hit.transform.parent.name == "Walls")
+                {
+                    StartCoroutine(removeWall(x, y, z, hit));
+                }
+                else if (hit.transform.parent.name == "Buildings")
+                {
+                    Destroy(hit.transform.gameObject);
+                    string name = hit.transform.name.Replace("(Clone)", "");
+                    Debug.Log(name);
+                    int num = -1;
+                    for (int i = 0; i < this.buildings.Count; i++)
+                    {
+                        if (this.buildings[i].name == name)
+                        {
+                            num = i;
+                            break;
+                        }
+                    }
+                    this.money += this.costs[num];
+                }
+
+                this.moneyText.text = "Gold: " + this.money;
+
+
                 /*
                 wallmap[x, y - 1, z] = 0;
                 // Debug.Log(hit.transform.name);
@@ -291,11 +377,11 @@ public class MapGenerator : MonoBehaviour
             StartCoroutine(startWave());
         }
 
-        Vector3 movement = Vector3.zero;
-        if (Input.GetKey(KeyCode.W)) movement += Vector3.forward;
-        if (Input.GetKey(KeyCode.S)) movement += Vector3.back;
-        if (Input.GetKey(KeyCode.A)) movement += Vector3.left;
-        if (Input.GetKey(KeyCode.D)) movement += Vector3.right;
+        // Vector3 movement = Vector3.zero;
+        // if (Input.GetKey(KeyCode.W)) movement += Vector3.forward;
+        // if (Input.GetKey(KeyCode.S)) movement += Vector3.back;
+        // if (Input.GetKey(KeyCode.A)) movement += Vector3.left;
+        // if (Input.GetKey(KeyCode.D)) movement += Vector3.right;
 
         // if (Input.GetKey(KeyCode.Space)) movement += Vector3.up;
         // if (Input.GetKey(KeyCode.LeftShift)) movement += Vector3.down;
@@ -303,19 +389,25 @@ public class MapGenerator : MonoBehaviour
         this.cam.GetComponent<Camera>().orthographicSize += -Input.mouseScrollDelta.y * 1f;
         this.cam.GetComponent<Camera>().orthographicSize = (this.cam.GetComponent<Camera>().orthographicSize < 1) ? 1 : this.cam.GetComponent<Camera>().orthographicSize;
 
-        this.cam.transform.position += movement * 4f * Time.deltaTime;
+        // this.cam.transform.position += movement * 4f * Time.deltaTime;
     }
 
     /* ================================================================================================================================ */
 
     IEnumerator startWave()
     {
+        this.isBuilding = false;
         int numEnemies = (int)Mathf.Lerp(5, 100, this.wave * (1f / 100));
-        for (int i = 0; i < numEnemies; i++)
-        {
-            spawnEnemy();
-            yield return new WaitForSecondsRealtime(1f);
-        }
+        // for (int i = 0; i < numEnemies; i++)
+        // {
+        //     spawnEnemy();
+        //     yield return new WaitForSecondsRealtime(1f);
+        // }
+        this.GetComponent<EnemyManager>().run();
+        InvokeRepeating("spawnEnemy", 0f, 2f);
+        yield return new WaitForSecondsRealtime(numEnemies);
+        CancelInvoke("spawnEnemy");
+        InvokeRepeating("checkEnemy", 0f, 1f);
         this.wave++;
     }
 
@@ -324,7 +416,21 @@ public class MapGenerator : MonoBehaviour
 
         Enemy e = GameObject.Instantiate(this.enemy, this.eMovement[0] + Vector3.one * 0.5f, Quaternion.identity);
         e.transform.parent = this.enemyObj.transform;
-        e.init(this.eMovement);
+        e.transform.tag = "Enemy";
+        e.init(this.eMovement, this.cam.GetComponent<Camera>(), 10);
+    }
+
+    void checkEnemy()
+    {
+        if (GameObject.FindGameObjectsWithTag("Enemy").Length <= 0)
+        {
+            this.isBuilding = true;
+            CancelInvoke("checkEnemy");
+        }
+        // else
+        // {
+        //     yield return new WaitForSecondsRealtime(1f);
+        // }
     }
 
     /* ================================================================================================================================ */
@@ -332,6 +438,7 @@ public class MapGenerator : MonoBehaviour
     IEnumerator placeWall(int x, int y, int z)
     {
         wallmap[x, y, z] = 1;
+        wallmap[x, 0, z] = 1;
 
         pathObj.GetComponent<MeshFilter>().mesh.Clear();
 
@@ -355,15 +462,21 @@ public class MapGenerator : MonoBehaviour
             if (obj.GetComponent<MeshCollider>() == null) obj.AddComponent<MeshCollider>();
             obj.GetComponent<MeshRenderer>().material = __wall;
 
+            wallmap[x, y, z] = 0;
+
+
             // CreateMeshFromChildren(walls, __wall);
 
             obj.GetComponent<MeshFilter>().mesh.RecalculateNormals();
             obj.GetComponent<MeshFilter>().mesh.RecalculateBounds();
             obj.GetComponent<MeshCollider>().sharedMesh = obj.GetComponent<MeshFilter>().mesh;
+
+            this.money -= this.costs[this.currentBuilding];
+            this.moneyText.text = "Gold: " + this.money;
         }
         else
         {
-            wallmap[x, y, z] = 0;
+            wallmap[x, 0, z] = 0;
 
             pathObj.GetComponent<MeshFilter>().mesh.Clear();
 
@@ -380,7 +493,10 @@ public class MapGenerator : MonoBehaviour
 
     IEnumerator removeWall(int x, int y, int z, RaycastHit hit)
     {
-        wallmap[x, y - 1, z] = 0;
+        this.money += this.costs[0];
+        this.moneyText.text = "Gold: " + this.money;
+
+        wallmap[x, 0, z] = 0;
         // Debug.Log(hit.transform.name);
         // CreatePos(x, y, z, wallmap, walls);
         Destroy(hit.transform.gameObject);
@@ -401,6 +517,12 @@ public class MapGenerator : MonoBehaviour
         yield return new WaitForSecondsRealtime(0.1f);
 
         CreatePath();
+    }
+
+    public void addMoney(int amount)
+    {
+        this.money += amount;
+        this.moneyText.text = "Gold: " + this.money;
     }
 
     /* ================================================================================================================================ */
@@ -508,11 +630,12 @@ public class MapGenerator : MonoBehaviour
 
                 for (int y = 0; y < this.worldHeight; y++)
                 {
-                    int wallheight = wallmap[x, y, z];
+                    if (wallmap[x, 0, z] == 1) closedSet.Add(new Vector3(x, y, z));
+                    // int wallheight = wallmap[x, 0, z];
                     // dScore[new Vector3(x, 0, z)] = (y <= noiseMap[x, z] * heightMultiplier) ? 1 : 0;
                     if (map[x, y, z] == 0)
                     {
-                        dScore[new Vector3(x, 0, z)] = y - 1 + wallheight;
+                        dScore[new Vector3(x, 0, z)] = y - 1;
                         break;
                     }
                 }
@@ -606,21 +729,13 @@ public class MapGenerator : MonoBehaviour
         int cost = 0;
 
         int diff = cMap[c] - cMap[n];
-        if (diff >= 2)
+        if (diff == 0)
         {
-            cost += 1000;
-        }
-        else if (diff > 0)
-        {
-            cost += 200;
-        }
-        else if (diff < 0)
-        {
-            cost += 200;
+            cost++;
         }
         else
         {
-            cost++;
+            cost += 200;
         }
 
         return cost;
