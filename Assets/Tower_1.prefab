@@ -110,6 +110,7 @@ GameObject:
   - component: {fileID: 6042085020918569217}
   - component: {fileID: 6589213852357568930}
   - component: {fileID: 6279262038390415941}
+  - component: {fileID: -2649626165819052948}
   m_Layer: 0
   m_Name: Tower_1
   m_TagString: Turret
@@ -198,6 +199,18 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &-2649626165819052948
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1034224089138803824}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d832ed5a8390b00469122b4a819c75e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1454751538304503914
 GameObject:
   m_ObjectHideFlags: 0

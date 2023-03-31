@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 784851486250078254}
   - component: {fileID: 9012667792847137799}
   - component: {fileID: 812871982668247768}
+  - component: {fileID: -5812966108502233010}
   m_Layer: 0
   m_Name: Tower_2
   m_TagString: Turret
@@ -100,6 +101,18 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2776770769473263270}
   m_Mesh: {fileID: 0}
+--- !u!114 &-5812966108502233010
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2776770769473263270}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d832ed5a8390b00469122b4a819c75e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &6502088000075836883
 GameObject:
   m_ObjectHideFlags: 0
