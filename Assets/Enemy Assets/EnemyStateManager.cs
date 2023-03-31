@@ -12,16 +12,20 @@ public class EnemyStateManager : MonoBehaviour
 
     public GameObject player;
     // public GameObject target;
+    public EnemyScriptableObject stats;
 
     public List<Vector3> path;
     public int pathIndex = 0;
 
-    public float health = 100.0f;
-    public float speed = 1.0f;
+    public float health;
+    public float speed;
 
     // Start is called before the first frame update
     void Start()
     {
+        health = stats.hp;
+        speed = stats.speed;
+
         attack = this.gameObject.AddComponent<EnemyStateAttack>();
         walking = this.gameObject.AddComponent<EnemyStateWalking>();
         player = GameObject.FindGameObjectWithTag("Player");
