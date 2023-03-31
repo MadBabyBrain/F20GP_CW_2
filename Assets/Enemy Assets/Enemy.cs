@@ -24,7 +24,11 @@ public class Enemy : MonoBehaviour
         this.cam = cam;
         this.path = path;
         this.currPos = 1;
-        InvokeRepeating("move", 1f, 1f);
+        // InvokeRepeating("move", 1f, 1f);
+    }
+    private void Update()
+    {
+        move();
     }
 
     void move()
@@ -36,11 +40,16 @@ public class Enemy : MonoBehaviour
             Destroy(this.health);
             GameObject.Find("Main").GetComponent<MapGenerator>().addMoney(5);
         }
-        this.transform.position = this.path[this.currPos] + Vector3.one * 0.5f;
+        // this.transform.position = this.path[this.currPos] + Vector3.one * 0.5f;
+        this.transform.position = Vector3.MoveTowards(this.transform.position, this.path[this.currPos] + Vector3.one * 0.5f, Time.deltaTime);
         this.health.transform.position = cam.WorldToScreenPoint(this.transform.position);
         this.health.GetComponent<TextMeshProUGUI>().text = "Health: " + this.hp;
         // yield return new WaitForSecondsRealtime(1);
-        this.currPos++;
+        // Debug.Log(Vector3.Distance(this.transform.position, this.path[this.currPos] + Vector3.one * 0.5f));
+        if (Vector3.Distance(this.transform.position, this.path[this.currPos] + Vector3.one * 0.5f) < 0.01f)
+        {
+            this.currPos++;
+        }
     }
 
     public int getPos()
