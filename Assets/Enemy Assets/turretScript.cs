@@ -15,10 +15,32 @@ public class turretScript : MonoBehaviour
     {
         container = new List<EnemyStateManager>();
         Collider[] hitColliders = Physics.OverlapSphere(this.gameObject.transform.position, distance, LayerMask.NameToLayer("Enemy"));
-        foreach (var hitCollider in hitColliders)
+        foreach (Collider hitCollider in hitColliders)
         {
-            container.Add(hitCollider);
+            container.Add(hitCollider.GetComponent<EnemyStateManager>());
         }
+    }
+
+    void getTarget(out EnemyStateManager target) {
+        target = null;
+        
+        // no targets in range
+        if (enemies.Count < 1) {
+            return;
+        }
+
+        // locate enemy with the shortest path length left
+        target = enemies[0];
+        foreach(EnemyStateManager enemy in enemies) {
+            if (enemy.pathIndex > target.pathIndex) {
+                target = enemy;
+            }
+        }
+    }
+
+    // coroutine? probably would work better
+    void shoot(EnemyStateManager target) {
+
     }
 
     void Update()
@@ -31,10 +53,22 @@ public class turretScript : MonoBehaviour
         // }
 
         // enemies <- enemies within range // overlap sphere
+        getEnemiesInRange(out enemies);
+
         // target <- enemy in enemies closest to base
+        getTarget(out target);
+
         // shoot(target) // update target via state manager
+        if (target != null) {
+            tHead.LookAt(target.transform);
+            // start coroutine?
+            shoot(target);
+        }
+
         // if target > range or target == dead
         //      target <- enemy in enemies closest to base
+        // e.g.: start loop all over again to get next enemy or
+        // wait until an enemy in range
 
 
     }
