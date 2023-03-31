@@ -163,6 +163,11 @@ public class MapGenerator : MonoBehaviour
             ground.GetComponent<MeshFilter>().mesh.RecalculateBounds();
             ground.GetComponent<MeshCollider>().sharedMesh = ground.GetComponent<MeshFilter>().mesh;
 
+            GameObject homebase = GameObject.Find("HomeBase");
+
+            homebase.transform.position = eMovement[^1] + new Vector3(0.5f, 0.5f, 0.5f);
+        
+
             // if (ground.transform.childCount == 0) break;
         }
 
@@ -214,6 +219,8 @@ public class MapGenerator : MonoBehaviour
     {
         this.startpos.transform.position = this.cam.GetComponent<Camera>().WorldToScreenPoint(this.start);
         this.endpos.transform.position = this.cam.GetComponent<Camera>().WorldToScreenPoint(this.end);
+
+        
 
         for (int k = ((int)KeyCode.Alpha0); k < ((int)KeyCode.Alpha9); k++)
         {
