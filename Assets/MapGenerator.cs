@@ -377,11 +377,11 @@ public class MapGenerator : MonoBehaviour
             StartCoroutine(startWave());
         }
 
-        // Vector3 movement = Vector3.zero;
-        // if (Input.GetKey(KeyCode.W)) movement += Vector3.forward;
-        // if (Input.GetKey(KeyCode.S)) movement += Vector3.back;
-        // if (Input.GetKey(KeyCode.A)) movement += Vector3.left;
-        // if (Input.GetKey(KeyCode.D)) movement += Vector3.right;
+        Vector3 movement = Vector3.zero;
+        if (Input.GetKey(KeyCode.W)) movement += Vector3.forward;
+        if (Input.GetKey(KeyCode.S)) movement += Vector3.back;
+        if (Input.GetKey(KeyCode.A)) movement += Vector3.left;
+        if (Input.GetKey(KeyCode.D)) movement += Vector3.right;
 
         // if (Input.GetKey(KeyCode.Space)) movement += Vector3.up;
         // if (Input.GetKey(KeyCode.LeftShift)) movement += Vector3.down;
@@ -389,7 +389,7 @@ public class MapGenerator : MonoBehaviour
         this.cam.GetComponent<Camera>().orthographicSize += -Input.mouseScrollDelta.y * 1f;
         this.cam.GetComponent<Camera>().orthographicSize = (this.cam.GetComponent<Camera>().orthographicSize < 1) ? 1 : this.cam.GetComponent<Camera>().orthographicSize;
 
-        // this.cam.transform.position += movement * 4f * Time.deltaTime;
+        this.cam.transform.position += movement * 4f * Time.deltaTime;
     }
 
     /* ================================================================================================================================ */
