@@ -251,6 +251,7 @@ public class MapGenerator : MonoBehaviour
                             obj.transform.parent = this.buildingObj.transform;
                             obj.layer = LayerMask.NameToLayer("Walls");
 
+                            CreateMeshFromChildren(obj.transform.GetChild(0).gameObject, __material);
                             CreateMeshFromChildren(obj, __material);
 
                             obj.transform.position = new Vector3(x + 0.5f, y, z + 0.5f);

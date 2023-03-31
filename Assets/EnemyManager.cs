@@ -43,6 +43,7 @@ public class EnemyManager : MonoBehaviour
                 if (target != null)
                 {
                     t.transform.LookAt(new Vector3(target.transform.position.x, t.transform.position.y, target.transform.position.z), Vector3.up);
+                    t.transform.RotateAround(t.transform.position, Vector3.up, 90);
                     StartCoroutine(target.GetComponent<Enemy>().damage(1));
                 }
             }
