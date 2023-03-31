@@ -604,6 +604,28 @@ public class MapGenerator : MonoBehaviour
             }
         }
 
+        List<Vector3> tmp = new List<Vector3>();
+        foreach (Vector3 v in eMovement)
+        {
+            tmp.Add(v);
+            int index = eMovement.IndexOf(v);
+            if (index + 1 < eMovement.Count && v.y != eMovement[index + 1].y)
+            {
+                Debug.Log(v.y + " : " + eMovement[index + 1].y);
+                if (v.y > eMovement[index + 1].y)
+                {
+                    tmp.Add(new Vector3(eMovement[index + 1].x, eMovement[index + 1].y + 1, eMovement[index + 1].z));
+                    // eMovement.Add(new Vector3(epath[index + 1].x, epath[index + 1].y + 1, epath[index + 1].z));
+                }
+                else
+                {
+                    tmp.Add(new Vector3(v.x, v.y + 1, v.z));
+                    // eMovement.Add(new Vector3(v.x, v.y + 1, v.z));
+                }
+            }
+        }
+        this.eMovement = new List<Vector3>(tmp);
+
         // yield return new WaitForSecondsRealtime(0.1f);
 
         CreateMesh(pathObj, path, __path);
@@ -735,7 +757,7 @@ public class MapGenerator : MonoBehaviour
         }
         else
         {
-            cost += 200;
+            cost += 2000;
         }
 
         return cost;
