@@ -39,6 +39,7 @@ public class Enemy : MonoBehaviour
             Destroy(this.gameObject);
             Destroy(this.health);
             GameObject.Find("Main").GetComponent<MapGenerator>().addMoney(5);
+            GameObject.Find("HomeBase").GetComponent<HomeBaseLogic>().takeDamage(1);
         }
         // this.transform.position = this.path[this.currPos] + Vector3.one * 0.5f;
         this.transform.position = Vector3.MoveTowards(this.transform.position, this.path[this.currPos] + Vector3.one * 0.5f, Time.deltaTime);

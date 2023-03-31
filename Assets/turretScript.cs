@@ -11,7 +11,7 @@ public class turretScript : MonoBehaviour
     public float maxDist;
     public Transform tHead;
 
-    private float damage = 10f;
+    private float damage = 5f;
     private float cooldown = 1f;
     private float timeSinceLastShot = 0;
 
