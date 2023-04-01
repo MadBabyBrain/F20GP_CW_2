@@ -788,12 +788,17 @@ MonoBehaviour:
   __highlight: {fileID: 2100000, guid: 0e6273b8306ad4042914cdb541d644ad, type: 2}
   __path: {fileID: 2100000, guid: 57bbe48bb9cce354099af11f7a8bbb69, type: 2}
   __wall: {fileID: 2100000, guid: bd3fd173f3b09794cba0ad521d1fe687, type: 2}
-  enemy: {fileID: 2582053175490348700, guid: 35ab36cc100471b4480679c813f2c32d, type: 3}
+  enemy: {fileID: 8094743467578617809, guid: 35ab36cc100471b4480679c813f2c32d, type: 3}
+  edata: {fileID: 11400000, guid: 6a5a6a0366f9be44c9219ba9307033a6, type: 2}
   currentBuilding: 0
   buildings:
   - {fileID: 109835482998888144, guid: d53e2719ffa95444597523d7ee790876, type: 3}
   - {fileID: 2088020216791384079, guid: 838f5f8d496f190438e7c1c48d9c232b, type: 3}
   - {fileID: 8066417802490753211, guid: 768f469cd42dfb246a7e537676dd4499, type: 3}
+  turretStats:
+  - {fileID: 0}
+  - {fileID: 11400000, guid: 614409913f2fb4f46967ce176d7f7487, type: 2}
+  - {fileID: 11400000, guid: 5ec574fa197c9ab4481b87a987c09787, type: 2}
   money: 0
   isBuilding: 0
   homebaseObj: {fileID: 5117763982277661055, guid: 8c7fb637903ebda479f5bd1505f9b4eb, type: 3}

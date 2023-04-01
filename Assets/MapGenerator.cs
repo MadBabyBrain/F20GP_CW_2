@@ -46,6 +46,8 @@ public class MapGenerator : MonoBehaviour
     private int wave;
     [SerializeField]
     private Enemy enemy;
+    [SerializeField]
+    private EnemyScriptableObject edata;
     private Vector3 start, end;
     private float DistanceApart; // distance between start vec and end vec
     private List<Vector3> epath;
@@ -54,6 +56,8 @@ public class MapGenerator : MonoBehaviour
     public int currentBuilding;
     [SerializeField]
     private List<GameObject> buildings;
+    [SerializeField]
+    private List<TurretScriptableObject> turretStats;
 
     public int money;
     private Dictionary<int, int> costs;
@@ -260,16 +264,20 @@ public class MapGenerator : MonoBehaviour
                             GameObject obj = Instantiate(this.buildings[this.currentBuilding], Vector3.zero, Quaternion.identity);
                             obj.transform.parent = this.buildingObj.transform;
                             obj.layer = LayerMask.NameToLayer("Walls");
+                            Turret t = obj.AddComponent<Turret>();
 
-                            CreateMeshFromChildren(obj.transform.GetChild(0).gameObject, __material);
-                            CreateMeshFromChildren(obj, __material);
+                            this.turretStats[this.currentBuilding].towerHeadTransform = obj.transform.GetChild(1).transform;
+                            t._init_(this.turretStats[this.currentBuilding]);
+
+                            // CreateMeshFromChildren(obj.transform.GetChild(0).gameObject, __material);
+                            // CreateMeshFromChildren(obj, __material);
 
                             obj.transform.position = new Vector3(x + 0.5f, y, z + 0.5f);
 
-                            if (obj.GetComponent<MeshCollider>() == null) obj.AddComponent<MeshCollider>();
-                            obj.GetComponent<MeshFilter>().mesh.RecalculateNormals();
-                            obj.GetComponent<MeshFilter>().mesh.RecalculateBounds();
-                            obj.GetComponent<MeshCollider>().sharedMesh = obj.GetComponent<MeshFilter>().mesh;
+                            // if (obj.GetComponent<MeshCollider>() == null) obj.AddComponent<MeshCollider>();
+                            // obj.GetComponent<MeshFilter>().mesh.RecalculateNormals();
+                            // obj.GetComponent<MeshFilter>().mesh.RecalculateBounds();
+                            // obj.GetComponent<MeshCollider>().sharedMesh = obj.GetComponent<MeshFilter>().mesh;
 
                             this.money -= this.costs[this.currentBuilding];
                         }
@@ -415,20 +423,24 @@ public class MapGenerator : MonoBehaviour
         //     yield return new WaitForSecondsRealtime(1f);
         // }
         this.GetComponent<EnemyManager>().run();
-        InvokeRepeating("spawnEnemy", 0f, 2f);
+        // InvokeRepeating("spawnEnemy", 0f, 2f);
+        for (int i = 0; i < numEnemies; i++)
+        {
+            spawnEnemy(i);
+        }
         yield return new WaitForSecondsRealtime(numEnemies);
-        CancelInvoke("spawnEnemy");
+        // CancelInvoke("spawnEnemy");
         InvokeRepeating("checkEnemy", 0f, 1f);
         this.wave++;
     }
 
-    void spawnEnemy()
+    void spawnEnemy(int i)
     {
-
-        Enemy e = GameObject.Instantiate(this.enemy, this.eMovement[0] + Vector3.one * 0.5f, Quaternion.identity);
+        Enemy e = GameObject.Instantiate(this.enemy, new Vector3(1f, -100000000f, 1f), Quaternion.identity);
         e.transform.parent = this.enemyObj.transform;
         e.transform.tag = "Enemy";
-        e.init(this.eMovement, this.cam.GetComponent<Camera>(), health: 10, speed: 10f);
+        StartCoroutine(e._init_(this.edata, this.eMovement, i));
+        // StartCoroutine(e.init(this.eMovement, this.cam.GetComponent<Camera>(), health: 10, speed: 1f, i));
     }
 
     void checkEnemy()

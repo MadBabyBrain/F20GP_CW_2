@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
-public class Enemy : MonoBehaviour
+public class Enemy_V1 : MonoBehaviour
 {
     private int currPos;
     private List<Vector3> path;
@@ -13,24 +13,38 @@ public class Enemy : MonoBehaviour
     private int hp;
     private bool toDestroy;
     private float speed;
-    public void init(List<Vector3> path, Camera cam, int health, float speed)
+    private float wait;
+    public IEnumerator init(List<Vector3> path, Camera cam, int health, float speed, float waitTime)
     {
+        this.wait = waitTime;
         this.speed = speed;
         this.toDestroy = false;
         GameObject o = GameObject.Find("Text");
         this.health = GameObject.Instantiate(o, this.transform.position, Quaternion.identity);
         this.health.transform.name = "Enemy Health";
+        this.health.SetActive(false);
         // this.health.transform.parent = GameObject.Find("Canvas").transform;
         this.health.transform.SetParent(GameObject.Find("Canvas").transform);
         this.hp = health;
         this.cam = cam;
         this.path = path;
         this.currPos = 1;
-        // InvokeRepeating("move", 1f, 1f);
+        // InvokeRepeating("move", waitTime, 0.13f);
+        yield return new WaitForSecondsRealtime(waitTime);
+        this.transform.position = this.path[0] + Vector3.one * 0.5f;
+        this.health.SetActive(true);
     }
+
     private void Update()
     {
-        move();
+        if (this.wait < 0)
+        {
+            move();
+        }
+        else
+        {
+            this.wait -= Time.deltaTime;
+        }
     }
 
     void move()
