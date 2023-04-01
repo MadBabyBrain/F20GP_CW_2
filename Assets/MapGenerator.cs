@@ -60,6 +60,8 @@ public class MapGenerator : MonoBehaviour
 
     public bool isBuilding;
 
+    [SerializeField]
+    private GameObject homebaseObj;
     private GameObject buildingObj;
 
     /* ==================== ====================  ==================== ==================== */
@@ -134,11 +136,13 @@ public class MapGenerator : MonoBehaviour
         CreatePath();
         // pathObj.GetComponent<MeshRenderer>().material = __path;
 
-
+        GameObject g = new GameObject();
+        g.name = "Ground holder";
+        g.transform.parent = this.transform;
         for (int i = 0; i < this.map.GetLength(1); i++)
         {
             GameObject ground = new GameObject();
-            ground.transform.parent = this.transform;
+            ground.transform.parent = g.transform;
             ground.name = $"Ground: {i}";
             ground.transform.position = new Vector3(0, i, 0);
             ground.tag = "Ground";
@@ -163,14 +167,13 @@ public class MapGenerator : MonoBehaviour
             ground.GetComponent<MeshFilter>().mesh.RecalculateBounds();
             ground.GetComponent<MeshCollider>().sharedMesh = ground.GetComponent<MeshFilter>().mesh;
 
-            GameObject homebase = GameObject.Find("HomeBase");
-
-            homebase.transform.position = eMovement[^1] + new Vector3(0.5f, 0.5f, 0.5f);
-        
-
             // if (ground.transform.childCount == 0) break;
         }
 
+        GameObject homebase = GameObject.Instantiate(this.homebaseObj, Vector3.zero, Quaternion.identity);
+        homebase.name = homebase.name.Replace("(Clone)", "");
+        homebase.transform.parent = this.transform;
+        homebase.transform.position = eMovement[eMovement.Count - 1] + Vector3.one * 0.5f;
 
         enemyObj = new GameObject();
         enemyObj.transform.parent = this.transform;
@@ -220,7 +223,7 @@ public class MapGenerator : MonoBehaviour
         this.startpos.transform.position = this.cam.GetComponent<Camera>().WorldToScreenPoint(this.start);
         this.endpos.transform.position = this.cam.GetComponent<Camera>().WorldToScreenPoint(this.end);
 
-        
+
 
         for (int k = ((int)KeyCode.Alpha0); k < ((int)KeyCode.Alpha9); k++)
         {
@@ -425,7 +428,7 @@ public class MapGenerator : MonoBehaviour
         Enemy e = GameObject.Instantiate(this.enemy, this.eMovement[0] + Vector3.one * 0.5f, Quaternion.identity);
         e.transform.parent = this.enemyObj.transform;
         e.transform.tag = "Enemy";
-        e.init(this.eMovement, this.cam.GetComponent<Camera>(), 10);
+        e.init(this.eMovement, this.cam.GetComponent<Camera>(), health: 10, speed: 10f);
     }
 
     void checkEnemy()

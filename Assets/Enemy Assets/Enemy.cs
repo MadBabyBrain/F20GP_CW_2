@@ -12,8 +12,10 @@ public class Enemy : MonoBehaviour
     private GameObject health;
     private int hp;
     private bool toDestroy;
-    public void init(List<Vector3> path, Camera cam, int health)
+    private float speed;
+    public void init(List<Vector3> path, Camera cam, int health, float speed)
     {
+        this.speed = speed;
         this.toDestroy = false;
         GameObject o = GameObject.Find("Text");
         this.health = GameObject.Instantiate(o, this.transform.position, Quaternion.identity);
@@ -42,7 +44,7 @@ public class Enemy : MonoBehaviour
             GameObject.Find("HomeBase").GetComponent<HomeBaseLogic>().takeDamage(1);
         }
         // this.transform.position = this.path[this.currPos] + Vector3.one * 0.5f;
-        this.transform.position = Vector3.MoveTowards(this.transform.position, this.path[this.currPos] + Vector3.one * 0.5f, Time.deltaTime);
+        this.transform.position = Vector3.MoveTowards(this.transform.position, this.path[this.currPos] + Vector3.one * 0.5f, this.speed * Time.deltaTime);
         this.health.transform.position = cam.WorldToScreenPoint(this.transform.position);
         this.health.GetComponent<TextMeshProUGUI>().text = "Health: " + this.hp;
         // yield return new WaitForSecondsRealtime(1);

@@ -792,10 +792,11 @@ MonoBehaviour:
   currentBuilding: 0
   buildings:
   - {fileID: 109835482998888144, guid: d53e2719ffa95444597523d7ee790876, type: 3}
-  - {fileID: 1034224089138803824, guid: 838f5f8d496f190438e7c1c48d9c232b, type: 3}
-  - {fileID: 2776770769473263270, guid: 768f469cd42dfb246a7e537676dd4499, type: 3}
+  - {fileID: 2088020216791384079, guid: 838f5f8d496f190438e7c1c48d9c232b, type: 3}
+  - {fileID: 8066417802490753211, guid: 768f469cd42dfb246a7e537676dd4499, type: 3}
   money: 0
   isBuilding: 0
+  homebaseObj: {fileID: 5117763982277661055, guid: 8c7fb637903ebda479f5bd1505f9b4eb, type: 3}
 --- !u!4 &1287456152
 Transform:
   m_ObjectHideFlags: 0
