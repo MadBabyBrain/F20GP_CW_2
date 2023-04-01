@@ -11,9 +11,12 @@ public class Enemy : MonoBehaviour
     void _init_(ref EnemyScriptableObject _stats, ref List<Vector3> _path) {
         path = _path;
         stats = _stats;
-        health = this.stats.hp;
-        speed = this.stats.speed;
 
+        // set enemy parameters
+        health = stats.hp;
+        speed = stats.speed;
+
+        // metadata
         pathIndex = 0;
         initialised = true;
     }

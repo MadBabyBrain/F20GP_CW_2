@@ -5,23 +5,28 @@ using UnityEngine;
 public class turretScript : MonoBehaviour
 {
 
-    List<EnemyStateManager> enemies;
-    EnemyStateManager target;
-    float distance;
-    public float maxDist;
-    public Transform tHead;
+    void _init_(ref TurretScriptableObject _stats) {
+        stats = _stats;
 
-    void getEnemiesInRange(out List<EnemyStateManager> container)
+        tHead = stats.towerHeadTransform;
+        distance = stats.radius;
+        attackInterval = stats.attackInterval;
+        damage = stats.damage;
+
+        initialised = true;
+    }
+
+    void enemiesInRange(out List<Enemy> container)
     {
-        container = new List<EnemyStateManager>();
+        container = new List<Enemy>();
         Collider[] hitColliders = Physics.OverlapSphere(this.gameObject.transform.position, distance, LayerMask.NameToLayer("Enemy"));
         foreach (Collider hitCollider in hitColliders)
         {
-            container.Add(hitCollider.GetComponent<EnemyStateManager>());
+            container.Add(hitCollider.GetComponent<Enemy>());
         }
     }
 
-    void getTarget(out EnemyStateManager target) {
+    void targetEnemy(out Enemy target) {
         target = null;
         
         // no targets in range
@@ -30,39 +35,36 @@ public class turretScript : MonoBehaviour
         }
 
         // locate enemy with the shortest path length left
-        target = enemies[0];
-        foreach(EnemyStateManager enemy in enemies) {
-            if (enemy.pathIndex > target.pathIndex) {
+        int distanceLeft = int.MaxValue;
+
+        foreach(Enemy enemy in enemies) {
+            if (enemy.distanceLeftToTravel() < distanceLeft) {
                 target = enemy;
             }
         }
     }
 
     // coroutine? probably would work better
-    void shoot(EnemyStateManager target) {
+    IEnumerator shoot(Enemy target) {
+        // instantiate new bullet or something??
 
+        target.takeDamage(damage);
+
+        yield return new WaitForSeconds(attackInterval);
     }
 
     void Update()
     {
-        // works only on one enemy
-        // distance = Vector3.Distance(enemy.position, transform.position);
-        // if (distance <= maxDist)
-        // {
-        //     tHead.LookAt(enemy);
-        // }
-
         // enemies <- enemies within range // overlap sphere
-        getEnemiesInRange(out enemies);
+        enemiesInRange(out enemies);
 
         // target <- enemy in enemies closest to base
-        getTarget(out target);
+        targetEnemy(out target);
 
-        // shoot(target) // update target via state manager
+        // shoot(target)
         if (target != null) {
             tHead.LookAt(target.transform);
-            // start coroutine?
-            shoot(target);
+            StartCoroutine(shoot(target));
         }
 
         // if target > range or target == dead
@@ -72,4 +74,15 @@ public class turretScript : MonoBehaviour
 
 
     }
+
+    // private members
+    private List<Enemy> enemies;
+    private Enemy target;
+    private Transform tHead;
+    private TurretScriptableObject stats;
+    private float distance;
+    private float attackInterval;
+    private float damage;
+    private bool initialised = false;   // used to determine if _init_() has been called and member fields have been set
+
 }
