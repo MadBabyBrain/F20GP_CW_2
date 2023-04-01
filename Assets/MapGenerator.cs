@@ -77,7 +77,7 @@ public class MapGenerator : MonoBehaviour
 
         // this.buildings = new List<GameObject>();
         this.costs = new Dictionary<int, int>();
-        this.money = 100;
+        this.money = 10000000;
 
         this.costs.Add(0, 10);
         this.costs.Add(1, 20);
@@ -230,10 +230,27 @@ public class MapGenerator : MonoBehaviour
             if (Input.GetKeyDown((KeyCode)k))
             {
                 this.currentBuilding = k - 48;
+                Debug.Log(this.currentBuilding);
             }
         }
 
+        TextMeshProUGUI selectedText = GameObject.Find("CurrentSelectedText").GetComponent<TextMeshProUGUI>();
+        switch(this.currentBuilding){
+            case 0:
+                selectedText.text = "Selected: Wall";
+                break;
+            case 1:
+                selectedText.text = "Selected: Tower 1";
+                break;
+            case 2:
+                selectedText.text = "Selected: Tower 2";
+                break;
+            default:
+                selectedText.text = "Selected: Nothing";
+                break;
+        }
 
+        
         if (Input.GetMouseButtonDown(0) && this.isBuilding)
         {
             Ray ray = this.cam.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
