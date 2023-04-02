@@ -68,9 +68,8 @@ public class MapGenerator : MonoBehaviour
     private GameObject homebaseObj;
     private GameObject buildingObj;
 
-    [SerializeField]
-    private List<TextMeshProUGUI> hotBarTexts;
-
+    [SerializeField] private List<GameObject> hotBarItems;
+   
     /* ==================== ====================  ==================== ==================== */
 
     TextMeshProUGUI moneyText;
@@ -221,12 +220,31 @@ public class MapGenerator : MonoBehaviour
         this.endpos.transform.name = "StartPos";
         this.endpos.transform.SetParent(GameObject.Find("Canvas").transform);
         this.endpos.GetComponent<TextMeshProUGUI>().text = "End";
+
+       for(int i=0; i<this.hotBarItems.Count; i++){
+            this.hotBarItems[i].transform.GetChild(0).gameObject.SetActive(false);
+            //this.hotBarItems[i].transform.GetChild(0).GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().text = "Cost: " + this.costs[i];
+            this.hotBarItems[i].transform.Find("Info").transform.Find("Cost").GetComponent<TextMeshProUGUI>().text = "Cost: " + this.costs[i];
+
+            if(i>0){
+                this.hotBarItems[i].transform.Find("Info").transform.Find("Damage").GetComponent<TextMeshProUGUI>().text = "Damage: " + this.costs[i];
+                this.hotBarItems[i].transform.Find("Info").transform.Find("Cooldown").GetComponent<TextMeshProUGUI>().text = "Cooldown: " + this.costs[i];
+            }
+       }
     }
 
     /* ================================================================================================================================ */
 
     private void Update()
     {
+
+        for(int i=0; i<hotBarItems.Count; i++){
+            if(50f>Vector2.Distance(this.hotBarItems[i].transform.position, Input.mousePosition)){
+                this.hotBarItems[i].transform.GetChild(0).gameObject.SetActive(true);
+            }else{
+                this.hotBarItems[i].transform.GetChild(0).gameObject.SetActive(false);
+            }
+        }
         this.startpos.transform.position = this.cam.GetComponent<Camera>().WorldToScreenPoint(this.start);
         this.endpos.transform.position = this.cam.GetComponent<Camera>().WorldToScreenPoint(this.end);
 
@@ -241,12 +259,12 @@ public class MapGenerator : MonoBehaviour
             }
         }
 
-        
-        for(int i=0; i<this.hotBarTexts.Count; i++){
+        // hotbar logic
+        for(int i=0; i<this.hotBarItems.Count; i++){
             if(i==this.currentBuilding){
-                this.hotBarTexts[i].color = Color.yellow;
+                this.hotBarItems[i].transform.Find("Hotbar").transform.Find("Text").GetComponent<TextMeshProUGUI>().color = Color.yellow;
             }else{
-                this.hotBarTexts[i].color = Color.white;
+                this.hotBarItems[i].transform.Find("Hotbar").transform.Find("Text").GetComponent<TextMeshProUGUI>().color = Color.white;
             }
         }
         
