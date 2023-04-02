@@ -295,11 +295,11 @@ public class MapGenerator : MonoBehaviour
         {
             if (i == this.currentBuilding)
             {
-                this.hotBarItems[i].transform.Find("Hotbar").transform.Find("Text").GetComponent<TextMeshProUGUI>().color = Color.yellow;
+                this.hotBarItems[i].transform.Find("HotbarItem").transform.Find("Text").GetComponent<TextMeshProUGUI>().color = Color.yellow;
             }
             else
             {
-                this.hotBarItems[i].transform.Find("Hotbar").transform.Find("Text").GetComponent<TextMeshProUGUI>().color = Color.white;
+                this.hotBarItems[i].transform.Find("HotbarItem").transform.Find("Text").GetComponent<TextMeshProUGUI>().color = Color.white;
             }
         }
 
