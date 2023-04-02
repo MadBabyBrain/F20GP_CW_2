@@ -11,6 +11,7 @@ public class MapGenerator : MonoBehaviour
     // private Vector3[,,] vertices;
     // private int[] triangles;
     // private Mesh mesh;
+    private bool initialised;
 
     /* ==================== ====================  ==================== ==================== */
     // noisemap data
@@ -78,8 +79,15 @@ public class MapGenerator : MonoBehaviour
 
     /* ==================== ====================  ==================== ==================== */
 
-    private void Start()
+    private void begin()
     {
+        foreach (Transform canObj in GameObject.Find("Canvas").transform)
+        {
+            canObj.gameObject.SetActive(canObj.name == "Playing");
+        }
+        // GameObject.Find("Playing").SetActive(true);
+        // GameObject.Find("MainMenu").SetActive(false);
+
         this.moneyText = GameObject.Find("MoneyText").GetComponent<TextMeshProUGUI>();
         this.fpsText = GameObject.Find("fpsText").GetComponent<TextMeshProUGUI>();
 
@@ -112,6 +120,11 @@ public class MapGenerator : MonoBehaviour
 
         this.isBuilding = true;
         this.fastForward = false;
+
+        if (GameObject.Find("MapWidth").GetComponent<TMP_InputField>().text.Length != 0) { this.worldWidth = GameObject.Find("MapWidth").GetComponent<TMP_InputField>().text; }
+        if (GameObject.Find("MapDepth").GetComponent<TMP_InputField>().text.Length != 0) { }
+        if (GameObject.Find("DistanceBetween").GetComponent<TMP_InputField>().text.Length != 0) { }
+        if (GameObject.Find("Seed").GetComponent<TMP_InputField>().text.Length != 0) { }
 
         do
         {
@@ -237,12 +250,14 @@ public class MapGenerator : MonoBehaviour
 
         GameObject o = GameObject.Find("Text");
         this.startpos = GameObject.Instantiate(o, this.start + Vector3.one * 0.5f, Quaternion.identity);
-        this.startpos.transform.name = "EndPos";
+        this.startpos.transform.name = "StartPos";
+        this.startpos.GetComponent<TextMeshProUGUI>().fontSize = 30;
         this.startpos.transform.SetParent(GameObject.Find("Canvas").transform);
         this.startpos.GetComponent<TextMeshProUGUI>().text = "Start";
 
         this.endpos = GameObject.Instantiate(o, this.end + Vector3.one * 0.5f, Quaternion.identity);
-        this.endpos.transform.name = "StartPos";
+        this.endpos.transform.name = "Endpos";
+        this.endpos.GetComponent<TextMeshProUGUI>().fontSize = 30;
         this.endpos.transform.SetParent(GameObject.Find("Canvas").transform);
         this.endpos.GetComponent<TextMeshProUGUI>().text = "End";
 
@@ -254,142 +269,122 @@ public class MapGenerator : MonoBehaviour
 
             if (i > 0)
             {
-                this.hotBarItems[i].transform.Find("Info").transform.Find("Damage").GetComponent<TextMeshProUGUI>().text = "Damage: " + this.costs[i];
-                this.hotBarItems[i].transform.Find("Info").transform.Find("Cooldown").GetComponent<TextMeshProUGUI>().text = "Cooldown: " + this.costs[i];
+                this.hotBarItems[i].transform.Find("Info").transform.Find("Damage").GetComponent<TextMeshProUGUI>().text = "Damage: " + this.turretStats[i].damage;
+                this.hotBarItems[i].transform.Find("Info").transform.Find("Cooldown").GetComponent<TextMeshProUGUI>().text = "Cooldown: " + this.turretStats[i].attackInterval;
             }
         }
+
+        this.initialised = true;
     }
 
     /* ================================================================================================================================ */
 
     private void Update()
     {
-        this.startpos.transform.position = this.cam.GetComponent<Camera>().WorldToScreenPoint(this.start + Vector3.one * 0.5f);
-        this.endpos.transform.position = this.cam.GetComponent<Camera>().WorldToScreenPoint(this.end + Vector3.one * 0.5f);
-
-        for (int i = 0; i < hotBarItems.Count; i++)
+        if (Input.GetKeyDown(KeyCode.Space) && !this.initialised) begin();
+        if (initialised)
         {
-            if (50f > Vector2.Distance(this.hotBarItems[i].transform.position, Input.mousePosition))
-            {
-                this.hotBarItems[i].transform.GetChild(0).gameObject.SetActive(true);
-            }
-            else
-            {
-                this.hotBarItems[i].transform.GetChild(0).gameObject.SetActive(false);
-            }
-        }
+            this.startpos.transform.position = this.cam.GetComponent<Camera>().WorldToScreenPoint(this.start + Vector3.one * 0.5f);
+            this.endpos.transform.position = this.cam.GetComponent<Camera>().WorldToScreenPoint(this.end + Vector3.one * 0.5f);
 
-
-        int prevBinding = this.currentBuilding;
-        for (int k = ((int)KeyCode.Alpha0); k < ((int)KeyCode.Alpha9); k++)
-        {
-            if (Input.GetKeyDown((KeyCode)k))
+            for (int i = 0; i < hotBarItems.Count; i++)
             {
-                this.currentBuilding = k - 48;
-                Debug.Log(this.currentBuilding);
-            }
-        }
-
-        // hotbar logic
-        for (int i = 0; i < this.hotBarItems.Count; i++)
-        {
-            if (i == this.currentBuilding)
-            {
-                this.hotBarItems[i].transform.Find("HotbarItem").transform.Find("Text").GetComponent<TextMeshProUGUI>().color = Color.yellow;
-            }
-            else
-            {
-                this.hotBarItems[i].transform.Find("HotbarItem").transform.Find("Text").GetComponent<TextMeshProUGUI>().color = Color.white;
-            }
-        }
-
-        if (Input.GetMouseButtonDown(0) && this.isBuilding)
-        {
-            Ray ray = this.cam.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
-            if (Physics.Raycast(ray, out hit, float.PositiveInfinity))
-            {
-                Debug.Log("placing");
-                int x = (int)hit.point.x, y = (int)Mathf.Round(hit.point.y), z = (int)hit.point.z;
-                // // Debug.Log(hit.point);
-                // // Debug.Log(new Vector3(x, y, z));
-
-                if (y >= wallmap.GetLength(1)) return;
-
-                if (this.money >= this.costs[this.currentBuilding])
+                if (50f > Vector2.Distance(this.hotBarItems[i].transform.position, Input.mousePosition))
                 {
-                    if (this.currentBuilding == 0)
-                    {
-                        StartCoroutine(placeWall(x, y, z));
-                    }
-                    else
-                    {
-                        if (hit.transform.parent.name == "Walls")
-                        {
-                            GameObject obj = Instantiate(this.buildings[this.currentBuilding], Vector3.zero, Quaternion.identity);
-                            obj.transform.parent = this.buildingObj.transform;
-                            obj.layer = LayerMask.NameToLayer("Walls");
-                            Turret t = obj.AddComponent<Turret>();
-
-                            this.turretStats[this.currentBuilding].towerHeadTransform = obj.transform.GetChild(1).transform;
-                            t._init_(this.turretStats[this.currentBuilding]);
-
-                            // CreateMeshFromChildren(obj.transform.GetChild(0).gameObject, __material);
-                            CreateMeshFromChildren(obj, __material);
-                            obj.GetComponent<MeshRenderer>().enabled = false;
-                            obj.transform.GetChild(0).gameObject.SetActive(true);
-                            obj.transform.GetChild(1).gameObject.SetActive(true);
-
-                            obj.AddComponent<MeshCollider>();
-                            obj.GetComponent<MeshCollider>().sharedMesh = obj.GetComponent<MeshFilter>().mesh;
-
-                            obj.transform.position = new Vector3(x + 0.5f, y, z + 0.5f);
-
-                            // if (obj.GetComponent<MeshCollider>() == null) obj.AddComponent<MeshCollider>();
-                            // obj.GetComponent<MeshFilter>().mesh.RecalculateNormals();
-                            // obj.GetComponent<MeshFilter>().mesh.RecalculateBounds();
-                            // obj.GetComponent<MeshCollider>().sharedMesh = obj.GetComponent<MeshFilter>().mesh;
-
-                            this.money -= this.costs[this.currentBuilding];
-                        }
-                    }
-                }
-
-                this.moneyText.text = "Gold: " + this.money;
-
-                /*
-                wallmap[x, y, z] = 1;
-
-                // CreatePos(x, y, z, wallmap, walls);
-                // CreateMeshFromChildren(walls, __wall);
-
-                pathObj.GetComponent<MeshFilter>().mesh.Clear();
-
-                foreach (Transform t in pathObj.transform)
-                {
-                    Destroy(t.gameObject);
-                }
-
-                CreatePath();
-
-                if (epath.Count > 1)
-                {
-                    GameObject obj = CreatePos(x, y, z, wallmap, walls);
-                    obj.layer = LayerMask.NameToLayer("Walls");
-                    obj.SetActive(true);
-                    if (obj.GetComponent<MeshRenderer>() == null) obj.AddComponent<MeshRenderer>();
-                    if (obj.GetComponent<MeshCollider>() == null) obj.AddComponent<MeshCollider>();
-                    obj.GetComponent<MeshRenderer>().material = __wall;
-
-                    // CreateMeshFromChildren(walls, __wall);
-
-                    obj.GetComponent<MeshFilter>().mesh.RecalculateNormals();
-                    obj.GetComponent<MeshFilter>().mesh.RecalculateBounds();
-                    obj.GetComponent<MeshCollider>().sharedMesh = obj.GetComponent<MeshFilter>().mesh;
+                    this.hotBarItems[i].transform.GetChild(0).gameObject.SetActive(true);
                 }
                 else
                 {
-                    wallmap[x, y, z] = 0;
+                    this.hotBarItems[i].transform.GetChild(0).gameObject.SetActive(false);
+                }
+            }
+
+
+            int prevBinding = this.currentBuilding;
+            for (int k = ((int)KeyCode.Alpha0); k < ((int)KeyCode.Alpha9); k++)
+            {
+                if (Input.GetKeyDown((KeyCode)k))
+                {
+                    this.currentBuilding = k - 48;
+                    Debug.Log(this.currentBuilding);
+                }
+            }
+
+            // hotbar logic
+            for (int i = 0; i < this.hotBarItems.Count; i++)
+            {
+                if (i == this.currentBuilding)
+                {
+                    this.hotBarItems[i].transform.Find("HotbarItem").transform.Find("Text").GetComponent<TextMeshProUGUI>().color = Color.yellow;
+                }
+                else
+                {
+                    this.hotBarItems[i].transform.Find("HotbarItem").transform.Find("Text").GetComponent<TextMeshProUGUI>().color = Color.white;
+                }
+            }
+
+            if (Input.GetMouseButtonDown(0) && this.isBuilding)
+            {
+                Ray ray = this.cam.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
+                RaycastHit hit;
+                if (Physics.Raycast(ray, out hit, float.PositiveInfinity))
+                {
+                    Debug.Log("placing");
+                    int x = (int)hit.point.x, y = (int)Mathf.Round(hit.point.y), z = (int)hit.point.z;
+                    // // Debug.Log(hit.point);
+                    // // Debug.Log(new Vector3(x, y, z));
+
+                    if (y >= wallmap.GetLength(1)) return;
+
+                    if (this.money >= this.costs[this.currentBuilding])
+                    {
+                        if (this.currentBuilding == 0)
+                        {
+                            StartCoroutine(placeWall(x, y, z));
+                        }
+                        else
+                        {
+                            if (hit.transform.parent.name == "Walls")
+                            {
+                                GameObject obj = Instantiate(this.buildings[this.currentBuilding], Vector3.zero, Quaternion.identity);
+                                obj.transform.parent = this.buildingObj.transform;
+                                obj.layer = LayerMask.NameToLayer("Walls");
+                                Turret t = obj.AddComponent<Turret>();
+
+                                this.turretStats[this.currentBuilding].towerHeadTransform = obj.transform.GetChild(1).transform;
+                                t._init_(this.turretStats[this.currentBuilding]);
+
+                                // CreateMeshFromChildren(obj.transform.GetChild(0).gameObject, __material);
+                                CreateMeshFromChildren(obj, __material);
+                                obj.GetComponent<MeshRenderer>().enabled = false;
+                                obj.transform.GetChild(0).gameObject.SetActive(true);
+                                obj.transform.GetChild(1).gameObject.SetActive(true);
+
+                                obj.AddComponent<MeshCollider>();
+                                obj.GetComponent<MeshCollider>().sharedMesh = obj.GetComponent<MeshFilter>().mesh;
+
+                                obj.transform.position = new Vector3(x + 0.5f, y + 10, z + 0.5f);
+
+                                StartCoroutine("moveToPosition", new object[] { obj, new Vector3(x + 0.5f, y, z + 0.5f) });
+                                // moveToPosition(obj, new Vector3(x + 0.5f, y, z + 0.5f));
+
+                                // if (obj.GetComponent<MeshCollider>() == null) obj.AddComponent<MeshCollider>();
+                                // obj.GetComponent<MeshFilter>().mesh.RecalculateNormals();
+                                // obj.GetComponent<MeshFilter>().mesh.RecalculateBounds();
+                                // obj.GetComponent<MeshCollider>().sharedMesh = obj.GetComponent<MeshFilter>().mesh;
+
+                                this.money -= this.costs[this.currentBuilding];
+                            }
+                        }
+                    }
+
+                    this.moneyText.text = "Gold: " + this.money;
+
+                    /*
+                    wallmap[x, y, z] = 1;
+
+                    // CreatePos(x, y, z, wallmap, walls);
+                    // CreateMeshFromChildren(walls, __wall);
 
                     pathObj.GetComponent<MeshFilter>().mesh.Clear();
 
@@ -399,100 +394,128 @@ public class MapGenerator : MonoBehaviour
                     }
 
                     CreatePath();
-                }
-                */
-            }
-        }
-        else if (Input.GetMouseButtonDown(1) && this.isBuilding)
-        {
-            Ray ray = this.cam.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
-            if (Physics.Raycast(ray, out hit, float.PositiveInfinity, LayerMask.GetMask("Walls")))
-            {
-                Debug.Log("removing");
-                int x = (int)hit.point.x, y = (int)Mathf.Round(hit.point.y), z = (int)hit.point.z;
-                // Debug.Log(hit.point);
-                // Debug.Log(new Vector3(x, y, z));
 
-                if (hit.transform.parent.name == "Walls")
-                {
-                    StartCoroutine(removeWall(x, y, z, hit));
-                }
-                else if (hit.transform.parent.name == "Buildings")
-                {
-                    Destroy(hit.transform.gameObject);
-                    string name = hit.transform.name.Replace("(Clone)", "");
-                    Debug.Log(name);
-                    int num = -1;
-                    for (int i = 0; i < this.buildings.Count; i++)
+                    if (epath.Count > 1)
                     {
-                        if (this.buildings[i].name == name)
-                        {
-                            num = i;
-                            break;
-                        }
+                        GameObject obj = CreatePos(x, y, z, wallmap, walls);
+                        obj.layer = LayerMask.NameToLayer("Walls");
+                        obj.SetActive(true);
+                        if (obj.GetComponent<MeshRenderer>() == null) obj.AddComponent<MeshRenderer>();
+                        if (obj.GetComponent<MeshCollider>() == null) obj.AddComponent<MeshCollider>();
+                        obj.GetComponent<MeshRenderer>().material = __wall;
+
+                        // CreateMeshFromChildren(walls, __wall);
+
+                        obj.GetComponent<MeshFilter>().mesh.RecalculateNormals();
+                        obj.GetComponent<MeshFilter>().mesh.RecalculateBounds();
+                        obj.GetComponent<MeshCollider>().sharedMesh = obj.GetComponent<MeshFilter>().mesh;
                     }
-                    this.money += this.costs[num];
+                    else
+                    {
+                        wallmap[x, y, z] = 0;
+
+                        pathObj.GetComponent<MeshFilter>().mesh.Clear();
+
+                        foreach (Transform t in pathObj.transform)
+                        {
+                            Destroy(t.gameObject);
+                        }
+
+                        CreatePath();
+                    }
+                    */
                 }
-
-                this.moneyText.text = "Gold: " + this.money;
-
-
-                /*
-                wallmap[x, y - 1, z] = 0;
-                // Debug.Log(hit.transform.name);
-                // CreatePos(x, y, z, wallmap, walls);
-                Destroy(hit.transform.gameObject);
-
-                // CreateMeshFromChildren(walls, __wall);
-
-                // walls.GetComponent<MeshFilter>().mesh.RecalculateNormals();
-                // walls.GetComponent<MeshFilter>().mesh.RecalculateBounds();
-                // walls.GetComponent<MeshCollider>().sharedMesh = walls.GetComponent<MeshFilter>().mesh;
-
-                pathObj.GetComponent<MeshFilter>().mesh.Clear();
-
-                foreach (Transform t in pathObj.transform)
-                {
-                    Destroy(t.gameObject);
-                }
-
-                CreatePath();
-                */
             }
+            else if (Input.GetMouseButtonDown(1) && this.isBuilding)
+            {
+                Ray ray = this.cam.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
+                RaycastHit hit;
+                if (Physics.Raycast(ray, out hit, float.PositiveInfinity, LayerMask.GetMask("Walls")))
+                {
+                    Debug.Log("removing");
+                    int x = (int)hit.point.x, y = (int)Mathf.Round(hit.point.y), z = (int)hit.point.z;
+                    // Debug.Log(hit.point);
+                    // Debug.Log(new Vector3(x, y, z));
+
+                    if (hit.transform.parent.name == "Walls")
+                    {
+                        StartCoroutine(removeWall(x, y, z, hit));
+                    }
+                    else if (hit.transform.parent.name == "Buildings")
+                    {
+                        Destroy(hit.transform.gameObject);
+                        string name = hit.transform.name.Replace("(Clone)", "");
+                        Debug.Log(name);
+                        int num = -1;
+                        for (int i = 0; i < this.buildings.Count; i++)
+                        {
+                            if (this.buildings[i].name == name)
+                            {
+                                num = i;
+                                break;
+                            }
+                        }
+                        this.money += this.costs[num];
+                    }
+
+                    this.moneyText.text = "Gold: " + this.money;
+
+
+                    /*
+                    wallmap[x, y - 1, z] = 0;
+                    // Debug.Log(hit.transform.name);
+                    // CreatePos(x, y, z, wallmap, walls);
+                    Destroy(hit.transform.gameObject);
+
+                    // CreateMeshFromChildren(walls, __wall);
+
+                    // walls.GetComponent<MeshFilter>().mesh.RecalculateNormals();
+                    // walls.GetComponent<MeshFilter>().mesh.RecalculateBounds();
+                    // walls.GetComponent<MeshCollider>().sharedMesh = walls.GetComponent<MeshFilter>().mesh;
+
+                    pathObj.GetComponent<MeshFilter>().mesh.Clear();
+
+                    foreach (Transform t in pathObj.transform)
+                    {
+                        Destroy(t.gameObject);
+                    }
+
+                    CreatePath();
+                    */
+                }
+            }
+
+            if (Input.GetKeyDown(KeyCode.N))
+            {
+                StartCoroutine(startWave());
+            }
+            if (Input.GetKeyDown(KeyCode.F)) { this.fastForward = !this.fastForward; }
+            Time.timeScale = (this.fastForward) ? 4f : 1f;
+
+            Vector3 movement = Vector3.zero;
+            if (Input.GetKey(KeyCode.W)) movement += Vector3.forward;
+            if (Input.GetKey(KeyCode.S)) movement += Vector3.back;
+            if (Input.GetKey(KeyCode.A)) movement += Vector3.left;
+            if (Input.GetKey(KeyCode.D)) movement += Vector3.right;
+
+            // if (Input.GetKey(KeyCode.Space)) movement += Vector3.up;
+            // if (Input.GetKey(KeyCode.LeftShift)) movement += Vector3.down;
+            // movement += -Input.mouseScrollDelta.y * Vector3.up * 30f;
+            this.cam.GetComponent<Camera>().orthographicSize += -Input.mouseScrollDelta.y * 1f;
+            this.cam.GetComponent<Camera>().orthographicSize = (this.cam.GetComponent<Camera>().orthographicSize < 1) ? 1 : this.cam.GetComponent<Camera>().orthographicSize;
+            this.cam.GetComponent<Camera>().orthographicSize = (this.cam.GetComponent<Camera>().orthographicSize > 20) ? 20 : this.cam.GetComponent<Camera>().orthographicSize;
+
+            this.cam.transform.position += movement * 4f * Time.deltaTime;
+
+            Vector3 pos = this.cam.transform.position;
+
+            if (pos.x < 0) { pos.x = 0f; }
+            if (pos.z < 0) { pos.z = 0f; }
+            if (pos.x > this.worldWidth) { pos.x = this.worldWidth; }
+            if (pos.z > this.worldDepth) { pos.z = this.worldDepth; }
+
+            this.cam.transform.position = pos;
         }
-
-        if (Input.GetKeyDown(KeyCode.N))
-        {
-            StartCoroutine(startWave());
-        }
-        if (Input.GetKeyDown(KeyCode.F)) { this.fastForward = !this.fastForward; }
-        Time.timeScale = (this.fastForward) ? 4f : 1f;
-
-        Vector3 movement = Vector3.zero;
-        if (Input.GetKey(KeyCode.W)) movement += Vector3.forward;
-        if (Input.GetKey(KeyCode.S)) movement += Vector3.back;
-        if (Input.GetKey(KeyCode.A)) movement += Vector3.left;
-        if (Input.GetKey(KeyCode.D)) movement += Vector3.right;
-
-        // if (Input.GetKey(KeyCode.Space)) movement += Vector3.up;
-        // if (Input.GetKey(KeyCode.LeftShift)) movement += Vector3.down;
-        // movement += -Input.mouseScrollDelta.y * Vector3.up * 30f;
-        this.cam.GetComponent<Camera>().orthographicSize += -Input.mouseScrollDelta.y * 1f;
-        this.cam.GetComponent<Camera>().orthographicSize = (this.cam.GetComponent<Camera>().orthographicSize < 1) ? 1 : this.cam.GetComponent<Camera>().orthographicSize;
-        this.cam.GetComponent<Camera>().orthographicSize = (this.cam.GetComponent<Camera>().orthographicSize > 20) ? 20 : this.cam.GetComponent<Camera>().orthographicSize;
-
-        this.cam.transform.position += movement * 4f * Time.deltaTime;
-
-        Vector3 pos = this.cam.transform.position;
-
-        if (pos.x < 0) { pos.x = 0f; }
-        if (pos.z < 0) { pos.z = 0f; }
-        if (pos.x > this.worldWidth) { pos.x = this.worldWidth; }
-        if (pos.z > this.worldDepth) { pos.z = this.worldDepth; }
-
-        this.cam.transform.position = pos;
-
     }
 
     /* ================================================================================================================================ */
@@ -1066,6 +1089,20 @@ public class MapGenerator : MonoBehaviour
 
     /* ================================================================================================================================ */
 
+    private IEnumerator moveToPosition(object[] parameters)
+    {
+        GameObject obj = (GameObject)parameters[0];
+        Vector3 pos = (Vector3)parameters[1];
+
+        while (Vector3.Distance(obj.transform.position, pos) > 0.01f)
+        {
+            obj.transform.position = Vector3.MoveTowards(obj.transform.position, pos, 1f);
+            yield return new WaitForSecondsRealtime(0.013f);
+        }
+
+    }
+
+    /* ================================================================================================================================ */
 
     /*
         void updateMesh()

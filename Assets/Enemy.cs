@@ -30,6 +30,7 @@ public class Enemy : MonoBehaviour
         GameObject o = GameObject.Find("Text");
         this.healthText = GameObject.Instantiate(o, this.transform.position, Quaternion.identity);
         this.healthText.transform.name = "Enemy Health";
+        this.healthText.GetComponent<TextMeshProUGUI>().fontSize = 30;
         this.healthText.transform.SetParent(GameObject.Find("Canvas").transform);
         this.healthText.SetActive(false);
 
