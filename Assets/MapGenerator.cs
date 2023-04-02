@@ -69,6 +69,8 @@ public class MapGenerator : MonoBehaviour
     private GameObject homebaseObj;
     private GameObject buildingObj;
 
+    [SerializeField] private List<GameObject> hotBarItems;
+
     /* ==================== ====================  ==================== ==================== */
 
     TextMeshProUGUI moneyText, fpsText;
@@ -243,6 +245,19 @@ public class MapGenerator : MonoBehaviour
         this.endpos.transform.name = "StartPos";
         this.endpos.transform.SetParent(GameObject.Find("Canvas").transform);
         this.endpos.GetComponent<TextMeshProUGUI>().text = "End";
+
+        for (int i = 0; i < this.hotBarItems.Count; i++)
+        {
+            this.hotBarItems[i].transform.GetChild(0).gameObject.SetActive(false);
+            //this.hotBarItems[i].transform.GetChild(0).GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().text = "Cost: " + this.costs[i];
+            this.hotBarItems[i].transform.Find("Info").transform.Find("Cost").GetComponent<TextMeshProUGUI>().text = "Cost: " + this.costs[i];
+
+            if (i > 0)
+            {
+                this.hotBarItems[i].transform.Find("Info").transform.Find("Damage").GetComponent<TextMeshProUGUI>().text = "Damage: " + this.costs[i];
+                this.hotBarItems[i].transform.Find("Info").transform.Find("Cooldown").GetComponent<TextMeshProUGUI>().text = "Cooldown: " + this.costs[i];
+            }
+        }
     }
 
     /* ================================================================================================================================ */
@@ -252,8 +267,20 @@ public class MapGenerator : MonoBehaviour
         this.startpos.transform.position = this.cam.GetComponent<Camera>().WorldToScreenPoint(this.start + Vector3.one * 0.5f);
         this.endpos.transform.position = this.cam.GetComponent<Camera>().WorldToScreenPoint(this.end + Vector3.one * 0.5f);
 
+        for (int i = 0; i < hotBarItems.Count; i++)
+        {
+            if (50f > Vector2.Distance(this.hotBarItems[i].transform.position, Input.mousePosition))
+            {
+                this.hotBarItems[i].transform.GetChild(0).gameObject.SetActive(true);
+            }
+            else
+            {
+                this.hotBarItems[i].transform.GetChild(0).gameObject.SetActive(false);
+            }
+        }
 
 
+        int prevBinding = this.currentBuilding;
         for (int k = ((int)KeyCode.Alpha0); k < ((int)KeyCode.Alpha9); k++)
         {
             if (Input.GetKeyDown((KeyCode)k))
@@ -263,23 +290,18 @@ public class MapGenerator : MonoBehaviour
             }
         }
 
-        TextMeshProUGUI selectedText = GameObject.Find("CurrentSelectedText").GetComponent<TextMeshProUGUI>();
-        switch (this.currentBuilding)
+        // hotbar logic
+        for (int i = 0; i < this.hotBarItems.Count; i++)
         {
-            case 0:
-                selectedText.text = "Selected: Wall";
-                break;
-            case 1:
-                selectedText.text = "Selected: Tower 1";
-                break;
-            case 2:
-                selectedText.text = "Selected: Tower 2";
-                break;
-            default:
-                selectedText.text = "Selected: Nothing";
-                break;
+            if (i == this.currentBuilding)
+            {
+                this.hotBarItems[i].transform.Find("Hotbar").transform.Find("Text").GetComponent<TextMeshProUGUI>().color = Color.yellow;
+            }
+            else
+            {
+                this.hotBarItems[i].transform.Find("Hotbar").transform.Find("Text").GetComponent<TextMeshProUGUI>().color = Color.white;
+            }
         }
-
 
         if (Input.GetMouseButtonDown(0) && this.isBuilding)
         {
