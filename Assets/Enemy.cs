@@ -44,6 +44,8 @@ public class Enemy : MonoBehaviour
     {
         if (pathIndex == path.Count - 1)
         {
+            GameObject.Find("HomeBase").GetComponent<HomeBaseLogic>().takeDamage(1);
+            Destroy(this.healthText);
             Destroy(gameObject);
             return;
         }
@@ -92,6 +94,8 @@ public class Enemy : MonoBehaviour
 
         if (health <= 0)
         {
+            GameObject.Find("Main").GetComponent<MapGenerator>().addMoney(5);
+            Destroy(this.healthText);
             Destroy(gameObject);
         }
     }

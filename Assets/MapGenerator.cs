@@ -36,7 +36,7 @@ public class MapGenerator : MonoBehaviour
 
     /* ==================== ====================  ==================== ==================== */
 
-    private GameObject highlight, walls, pathObj, enemyObj;
+    private GameObject highlight, turretHighlight, walls, pathObj, enemyObj;
 
     [SerializeField]
     private Material __material, g1, g2, __highlight, __path, __wall;
@@ -54,6 +54,7 @@ public class MapGenerator : MonoBehaviour
     private List<Vector3> eMovement;
 
     public int currentBuilding;
+    private bool fastForward;
     [SerializeField]
     private List<GameObject> buildings;
     [SerializeField]
@@ -70,7 +71,7 @@ public class MapGenerator : MonoBehaviour
 
     /* ==================== ====================  ==================== ==================== */
 
-    TextMeshProUGUI moneyText;
+    TextMeshProUGUI moneyText, fpsText;
     GameObject startpos, endpos;
 
     /* ==================== ====================  ==================== ==================== */
@@ -78,10 +79,15 @@ public class MapGenerator : MonoBehaviour
     private void Start()
     {
         this.moneyText = GameObject.Find("MoneyText").GetComponent<TextMeshProUGUI>();
+        this.fpsText = GameObject.Find("fpsText").GetComponent<TextMeshProUGUI>();
+
+        InvokeRepeating("UpdateFPS", 1f, 0.5f);
 
         // this.buildings = new List<GameObject>();
         this.costs = new Dictionary<int, int>();
-        this.money = 10000000;
+        this.money = 200;
+
+        this.moneyText.text = "Gold: " + this.money;
 
         this.costs.Add(0, 10);
         this.costs.Add(1, 20);
@@ -103,6 +109,7 @@ public class MapGenerator : MonoBehaviour
         this.DistanceApart = 40f;
 
         this.isBuilding = true;
+        this.fastForward = false;
 
         do
         {
@@ -118,6 +125,7 @@ public class MapGenerator : MonoBehaviour
         this.path = new int[(worldWidth), (worldHeight), (worldDepth)];
         this.wallmap = new int[(worldWidth), (worldHeight), (worldDepth)];
 
+
         this.cam = GameObject.Find("Main Camera");
 
         this.highlight = new GameObject();
@@ -127,6 +135,19 @@ public class MapGenerator : MonoBehaviour
         tmp[0, 0, 0] = 1;
         CreateMesh(this.highlight, tmp, __highlight);
         this.highlight.GetComponent<MeshRenderer>().material = __highlight;
+
+        GameObject sphereObj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        Mesh sphereObjMesh = Instantiate(sphereObj.GetComponent<MeshFilter>().mesh);
+        Destroy(sphereObj);
+
+        this.turretHighlight = new GameObject();
+        this.turretHighlight.transform.parent = this.transform;
+        this.turretHighlight.name = "turretHighlight";
+        this.turretHighlight.AddComponent<MeshFilter>();
+        this.turretHighlight.GetComponent<MeshFilter>().mesh = sphereObjMesh;
+        this.turretHighlight.AddComponent<MeshRenderer>();
+        this.turretHighlight.GetComponent<MeshRenderer>().material = this.__highlight;
+        this.turretHighlight.transform.localScale = new Vector3(1, 0, 1);
 
 
         this.epath = new List<Vector3>();
@@ -171,7 +192,11 @@ public class MapGenerator : MonoBehaviour
             ground.GetComponent<MeshFilter>().mesh.RecalculateBounds();
             ground.GetComponent<MeshCollider>().sharedMesh = ground.GetComponent<MeshFilter>().mesh;
 
-            // if (ground.transform.childCount == 0) break;
+            if (ground.transform.childCount == 0)
+            {
+                Destroy(ground);
+                break;
+            }
         }
 
         GameObject homebase = GameObject.Instantiate(this.homebaseObj, Vector3.zero, Quaternion.identity);
@@ -209,12 +234,12 @@ public class MapGenerator : MonoBehaviour
 
 
         GameObject o = GameObject.Find("Text");
-        this.startpos = GameObject.Instantiate(o, this.start, Quaternion.identity);
+        this.startpos = GameObject.Instantiate(o, this.start + Vector3.one * 0.5f, Quaternion.identity);
         this.startpos.transform.name = "EndPos";
         this.startpos.transform.SetParent(GameObject.Find("Canvas").transform);
         this.startpos.GetComponent<TextMeshProUGUI>().text = "Start";
 
-        this.endpos = GameObject.Instantiate(o, this.start, Quaternion.identity);
+        this.endpos = GameObject.Instantiate(o, this.end + Vector3.one * 0.5f, Quaternion.identity);
         this.endpos.transform.name = "StartPos";
         this.endpos.transform.SetParent(GameObject.Find("Canvas").transform);
         this.endpos.GetComponent<TextMeshProUGUI>().text = "End";
@@ -224,8 +249,8 @@ public class MapGenerator : MonoBehaviour
 
     private void Update()
     {
-        this.startpos.transform.position = this.cam.GetComponent<Camera>().WorldToScreenPoint(this.start);
-        this.endpos.transform.position = this.cam.GetComponent<Camera>().WorldToScreenPoint(this.end);
+        this.startpos.transform.position = this.cam.GetComponent<Camera>().WorldToScreenPoint(this.start + Vector3.one * 0.5f);
+        this.endpos.transform.position = this.cam.GetComponent<Camera>().WorldToScreenPoint(this.end + Vector3.one * 0.5f);
 
 
 
@@ -239,7 +264,8 @@ public class MapGenerator : MonoBehaviour
         }
 
         TextMeshProUGUI selectedText = GameObject.Find("CurrentSelectedText").GetComponent<TextMeshProUGUI>();
-        switch(this.currentBuilding){
+        switch (this.currentBuilding)
+        {
             case 0:
                 selectedText.text = "Selected: Wall";
                 break;
@@ -254,7 +280,7 @@ public class MapGenerator : MonoBehaviour
                 break;
         }
 
-        
+
         if (Input.GetMouseButtonDown(0) && this.isBuilding)
         {
             Ray ray = this.cam.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
@@ -287,7 +313,13 @@ public class MapGenerator : MonoBehaviour
                             t._init_(this.turretStats[this.currentBuilding]);
 
                             // CreateMeshFromChildren(obj.transform.GetChild(0).gameObject, __material);
-                            // CreateMeshFromChildren(obj, __material);
+                            CreateMeshFromChildren(obj, __material);
+                            obj.GetComponent<MeshRenderer>().enabled = false;
+                            obj.transform.GetChild(0).gameObject.SetActive(true);
+                            obj.transform.GetChild(1).gameObject.SetActive(true);
+
+                            obj.AddComponent<MeshCollider>();
+                            obj.GetComponent<MeshCollider>().sharedMesh = obj.GetComponent<MeshFilter>().mesh;
 
                             obj.transform.position = new Vector3(x + 0.5f, y, z + 0.5f);
 
@@ -412,6 +444,8 @@ public class MapGenerator : MonoBehaviour
         {
             StartCoroutine(startWave());
         }
+        if (Input.GetKeyDown(KeyCode.F)) { this.fastForward = !this.fastForward; }
+        Time.timeScale = (this.fastForward) ? 4f : 1f;
 
         Vector3 movement = Vector3.zero;
         if (Input.GetKey(KeyCode.W)) movement += Vector3.forward;
@@ -424,8 +458,19 @@ public class MapGenerator : MonoBehaviour
         // movement += -Input.mouseScrollDelta.y * Vector3.up * 30f;
         this.cam.GetComponent<Camera>().orthographicSize += -Input.mouseScrollDelta.y * 1f;
         this.cam.GetComponent<Camera>().orthographicSize = (this.cam.GetComponent<Camera>().orthographicSize < 1) ? 1 : this.cam.GetComponent<Camera>().orthographicSize;
+        this.cam.GetComponent<Camera>().orthographicSize = (this.cam.GetComponent<Camera>().orthographicSize > 20) ? 20 : this.cam.GetComponent<Camera>().orthographicSize;
 
         this.cam.transform.position += movement * 4f * Time.deltaTime;
+
+        Vector3 pos = this.cam.transform.position;
+
+        if (pos.x < 0) { pos.x = 0f; }
+        if (pos.z < 0) { pos.z = 0f; }
+        if (pos.x > this.worldWidth) { pos.x = this.worldWidth; }
+        if (pos.z > this.worldDepth) { pos.z = this.worldDepth; }
+
+        this.cam.transform.position = pos;
+
     }
 
     /* ================================================================================================================================ */
@@ -433,13 +478,19 @@ public class MapGenerator : MonoBehaviour
     IEnumerator startWave()
     {
         this.isBuilding = false;
-        int numEnemies = (int)Mathf.Lerp(5, 100, this.wave * (1f / 100));
+        int numEnemies = (int)Mathf.Lerp(5, 100, this.wave * (1f / Mathf.Max(100, this.wave)));
+        int health = (int)Mathf.Lerp(10, 1000, this.wave * (1f / Mathf.Max(1000, this.wave)));
+        float speed = Mathf.Lerp(1, 5, this.wave * (1f / Mathf.Max(200, this.wave)));
+
+        this.edata.speed = speed;
+        this.edata.hp = health;
+
         // for (int i = 0; i < numEnemies; i++)
         // {
         //     spawnEnemy();
         //     yield return new WaitForSecondsRealtime(1f);
         // }
-        this.GetComponent<EnemyManager>().run();
+        // this.GetComponent<EnemyManager>().run();
         // InvokeRepeating("spawnEnemy", 0f, 2f);
         for (int i = 0; i < numEnemies; i++)
         {
@@ -577,6 +628,18 @@ public class MapGenerator : MonoBehaviour
             Vector3 pos = new Vector3(x, y, z);
             // Debug.Log(new Vector3((int)hit.point.x, (int)hit.point.y, (int)hit.point.z));
             this.highlight.transform.position = pos;
+
+            if (hit.transform.parent.name == "Buildings")
+            {
+                this.turretHighlight.SetActive(true);
+                float r = hit.transform.GetComponent<Turret>().distance;
+                this.turretHighlight.transform.position = pos + Vector3.one * 0.5f;
+                this.turretHighlight.transform.localScale = new Vector3(2 * r, 1, 2 * r);
+            }
+            else
+            {
+                this.turretHighlight.SetActive(false);
+            }
         }
     }
 
@@ -865,6 +928,7 @@ public class MapGenerator : MonoBehaviour
         if (parent.GetComponent<MeshRenderer>() == null) parent.AddComponent<MeshRenderer>();
         parent.GetComponent<MeshRenderer>().material = mat;
         parent.GetComponent<MeshFilter>().mesh = new Mesh();
+        parent.GetComponent<MeshFilter>().mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
         parent.GetComponent<MeshFilter>().mesh.CombineMeshes(comb);
         parent.GetComponent<MeshFilter>().mesh.RecalculateNormals();
         parent.SetActive(true);
@@ -973,7 +1037,10 @@ public class MapGenerator : MonoBehaviour
 
     /* ================================================================================================================================ */
 
-
+    private void UpdateFPS()
+    {
+        this.fpsText.text = Mathf.Round(Time.frameCount / Time.time) + " :FPS";
+    }
 
     /* ================================================================================================================================ */
 

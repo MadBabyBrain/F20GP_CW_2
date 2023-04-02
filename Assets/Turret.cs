@@ -43,7 +43,7 @@ public class Turret : MonoBehaviour
 
         foreach (Enemy enemy in enemies)
         {
-            if (enemy.getpos() > pos)
+            if (enemy.getpos() >= pos)
             {
                 target = enemy;
             }
@@ -67,12 +67,13 @@ public class Turret : MonoBehaviour
         enemiesInRange(out enemies);
 
         // target <- enemy in enemies closest to base
-        if (target == null) targetEnemy(out target);
+        targetEnemy(out target);
 
         // shoot(target)
         if (target != null)
         {
-            tHead.LookAt(target.transform);
+            // tHead.LookAt(target.transform);
+            tHead.LookAt(new Vector3(target.transform.position.x, tHead.transform.position.y, target.transform.position.z), Vector3.up);
             if (!shooting) StartCoroutine(shoot(target));
         }
 
