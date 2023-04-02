@@ -68,6 +68,9 @@ public class MapGenerator : MonoBehaviour
     private GameObject homebaseObj;
     private GameObject buildingObj;
 
+    [SerializeField]
+    private List<TextMeshProUGUI> hotBarTexts;
+
     /* ==================== ====================  ==================== ==================== */
 
     TextMeshProUGUI moneyText;
@@ -228,7 +231,7 @@ public class MapGenerator : MonoBehaviour
         this.endpos.transform.position = this.cam.GetComponent<Camera>().WorldToScreenPoint(this.end);
 
 
-
+        int prevBinding = this.currentBuilding;
         for (int k = ((int)KeyCode.Alpha0); k < ((int)KeyCode.Alpha9); k++)
         {
             if (Input.GetKeyDown((KeyCode)k))
@@ -238,22 +241,14 @@ public class MapGenerator : MonoBehaviour
             }
         }
 
-        TextMeshProUGUI selectedText = GameObject.Find("CurrentSelectedText").GetComponent<TextMeshProUGUI>();
-        switch(this.currentBuilding){
-            case 0:
-                selectedText.text = "Selected: Wall";
-                break;
-            case 1:
-                selectedText.text = "Selected: Tower 1";
-                break;
-            case 2:
-                selectedText.text = "Selected: Tower 2";
-                break;
-            default:
-                selectedText.text = "Selected: Nothing";
-                break;
+        
+        for(int i=0; i<this.hotBarTexts.Count; i++){
+            if(i==this.currentBuilding){
+                this.hotBarTexts[i].color = Color.yellow;
+            }else{
+                this.hotBarTexts[i].color = Color.white;
+            }
         }
-
         
         if (Input.GetMouseButtonDown(0) && this.isBuilding)
         {
