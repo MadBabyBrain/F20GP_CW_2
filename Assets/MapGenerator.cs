@@ -121,7 +121,7 @@ public class MapGenerator : MonoBehaviour
         this.isBuilding = true;
         this.fastForward = false;
 
-        if (GameObject.Find("MapWidth").GetComponent<TMP_InputField>().text.Length != 0) { this.worldWidth = GameObject.Find("MapWidth").GetComponent<TMP_InputField>().text; }
+        //if (GameObject.Find("MapWidth").GetComponent<TMP_InputField>().text.Length != 0) { this.worldWidth = GameObject.Find("MapWidth").GetComponent<TMP_InputField>().text; }
         if (GameObject.Find("MapDepth").GetComponent<TMP_InputField>().text.Length != 0) { }
         if (GameObject.Find("DistanceBetween").GetComponent<TMP_InputField>().text.Length != 0) { }
         if (GameObject.Find("Seed").GetComponent<TMP_InputField>().text.Length != 0) { }
