@@ -67,6 +67,7 @@ public class Enemy : MonoBehaviour
 
         this.healthBar.transform.position = cam.WorldToScreenPoint(this.transform.position);
         this.healthBar.transform.Find("GreenHealth").gameObject.GetComponent<Image>().fillAmount = (float)this.health/(float)this.maxHealth;
+        this.healthBar.transform.Find("HealthText").gameObject.GetComponent<TextMeshProUGUI>().text = "HP: " + this.health + "/" + this.maxHealth;
 
         if (Vector3.Distance(this.transform.position, this.path[this.pathIndex] + Vector3.one * 0.5f) < 0.01f)
         {
