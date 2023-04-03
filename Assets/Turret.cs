@@ -45,6 +45,7 @@ public class Turret : MonoBehaviour
         {
             if (enemy.getpos() >= pos)
             {
+                pos = enemy.getpos();
                 target = enemy;
             }
         }
@@ -63,25 +64,28 @@ public class Turret : MonoBehaviour
 
     void Update()
     {
-        // enemies <- enemies within range // overlap sphere
-        enemiesInRange(out enemies);
-
-        // target <- enemy in enemies closest to base
-        targetEnemy(out target);
-
-        // shoot(target)
-        if (target != null)
+        if (!shooting)
         {
-            // tHead.LookAt(target.transform);
-            tHead.LookAt(new Vector3(target.transform.position.x, tHead.transform.position.y, target.transform.position.z), Vector3.up);
-            if (!shooting) StartCoroutine(shoot(target));
+            // enemies <- enemies within range // overlap sphere
+            enemiesInRange(out enemies);
+
+            // target <- enemy in enemies closest to base
+            targetEnemy(out target);
+
+            // shoot(target)
+            if (target != null)
+            {
+                // tHead.LookAt(target.transform);
+                tHead.LookAt(new Vector3(target.transform.position.x, tHead.transform.position.y, target.transform.position.z), Vector3.up);
+                if (!shooting) StartCoroutine(shoot(target));
+            }
+
+            // if target > range or target == dead
+            //      target <- enemy in enemies closest to base
+            // e.g.: start loop all over again to get next enemy or
+            // wait until an enemy in range
+
         }
-
-        // if target > range or target == dead
-        //      target <- enemy in enemies closest to base
-        // e.g.: start loop all over again to get next enemy or
-        // wait until an enemy in range
-
 
     }
 

@@ -24,7 +24,7 @@ public class Enemy : MonoBehaviour
         speed = stats.speed;
 
         // metadata
-        pathIndex = 0;
+        pathIndex = 1;
         initialised = true;
 
         GameObject o = GameObject.Find("Text");
@@ -55,6 +55,8 @@ public class Enemy : MonoBehaviour
         // gameObject.transform.position = path[pathIndex++];
 
         this.transform.position = Vector3.MoveTowards(this.transform.position, this.path[this.pathIndex] + Vector3.one * 0.5f, this.speed * Time.deltaTime);
+        this.transform.LookAt(new Vector3(this.path[this.pathIndex].x + 0.5f, this.transform.position.y, this.path[this.pathIndex].z + 0.5f), Vector3.up);
+        this.transform.Rotate(new Vector3(0, 90, 0));
 
         this.distMoved += this.speed * Time.deltaTime;
 
@@ -93,8 +95,9 @@ public class Enemy : MonoBehaviour
     {
         health -= damage;
 
-        if (health <= 0)
+        if (health <= 0 && this.alive)
         {
+            this.alive = false;
             GameObject.Find("Main").GetComponent<MapGenerator>().addMoney(5);
             Destroy(this.healthText);
             Destroy(gameObject);
@@ -114,5 +117,6 @@ public class Enemy : MonoBehaviour
     public bool initialised = false;   // used to determine if _init_() has been called and member fields have been set
     public GameObject healthText;
     public Camera cam;
+    public bool alive = true;
 
 }

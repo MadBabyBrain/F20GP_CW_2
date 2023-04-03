@@ -74,30 +74,26 @@ public class MapGenerator : MonoBehaviour
 
     /* ==================== ====================  ==================== ==================== */
 
-    TextMeshProUGUI moneyText, fpsText;
+    TextMeshProUGUI moneyText, fpsText, controlsText;
     GameObject startpos, endpos;
 
     /* ==================== ====================  ==================== ==================== */
 
-    private void begin()
+    [SerializeField]
+    private GameObject treeObj;
+
+    /* ==================== ====================  ==================== ==================== */
+
+    public void begin()
     {
-        foreach (Transform canObj in GameObject.Find("Canvas").transform)
-        {
-            canObj.gameObject.SetActive(canObj.name == "Playing");
-        }
+
         // GameObject.Find("Playing").SetActive(true);
         // GameObject.Find("MainMenu").SetActive(false);
-
-        this.moneyText = GameObject.Find("MoneyText").GetComponent<TextMeshProUGUI>();
-        this.fpsText = GameObject.Find("fpsText").GetComponent<TextMeshProUGUI>();
-
-        InvokeRepeating("UpdateFPS", 1f, 0.5f);
 
         // this.buildings = new List<GameObject>();
         this.costs = new Dictionary<int, int>();
         this.money = 200;
 
-        this.moneyText.text = "Gold: " + this.money;
 
         this.costs.Add(0, 10);
         this.costs.Add(1, 20);
@@ -122,9 +118,20 @@ public class MapGenerator : MonoBehaviour
         this.fastForward = false;
 
         //if (GameObject.Find("MapWidth").GetComponent<TMP_InputField>().text.Length != 0) { this.worldWidth = GameObject.Find("MapWidth").GetComponent<TMP_InputField>().text; }
-        if (GameObject.Find("MapDepth").GetComponent<TMP_InputField>().text.Length != 0) { }
-        if (GameObject.Find("DistanceBetween").GetComponent<TMP_InputField>().text.Length != 0) { }
-        if (GameObject.Find("Seed").GetComponent<TMP_InputField>().text.Length != 0) { }
+        if (GameObject.Find("MapWidth").GetComponent<TMP_InputField>().text.Length != 0) { this.worldWidth = int.Parse(GameObject.Find("MapWidth").GetComponent<TMP_InputField>().text); }
+        if (GameObject.Find("MapDepth").GetComponent<TMP_InputField>().text.Length != 0) { this.worldDepth = int.Parse(GameObject.Find("MapDepth").GetComponent<TMP_InputField>().text); }
+        if (GameObject.Find("DistanceBetween").GetComponent<TMP_InputField>().text.Length != 0) { this.DistanceApart = int.Parse(GameObject.Find("DistanceBetween").GetComponent<TMP_InputField>().text); }
+        if (GameObject.Find("Seed").GetComponent<TMP_InputField>().text.Length != 0) { this.seed = int.Parse(GameObject.Find("Seed").GetComponent<TMP_InputField>().text); }
+
+
+        if (this.worldWidth <= 10 + this.DistanceApart) this.worldWidth = (int)(10 + this.DistanceApart + 1);
+        if (this.worldDepth <= 10 + this.DistanceApart) this.worldDepth = (int)(10 + this.DistanceApart + 1);
+
+        foreach (Transform canObj in GameObject.Find("Canvas").transform)
+        {
+            canObj.gameObject.SetActive(canObj.name == "Playing");
+        }
+
 
         do
         {
@@ -274,6 +281,31 @@ public class MapGenerator : MonoBehaviour
             }
         }
 
+        this.moneyText = GameObject.Find("MoneyText").GetComponent<TextMeshProUGUI>();
+        this.fpsText = GameObject.Find("fpsText").GetComponent<TextMeshProUGUI>();
+        this.controlsText = GameObject.Find("Controls").GetComponent<TextMeshProUGUI>();
+
+        this.moneyText.text = "Gold: " + this.money;
+
+
+        InvokeRepeating("UpdateFPS", 1f, 0.5f);
+
+        GameObject scenery = new GameObject();
+        scenery.transform.parent = this.transform;
+        scenery.name = "Scenery";
+
+        for (int treeX = 0; treeX < this.worldWidth / 10 + 2; treeX++)
+        {
+            for (int treeZ = 0; treeZ < this.worldDepth / 10 + 2; treeZ++)
+            {
+                GameObject tree = GameObject.Instantiate(this.treeObj, new Vector3(treeX * 20, -80, treeZ * 15) + new Vector3(-20, 0, -15), Quaternion.identity);
+                tree.transform.rotation = Quaternion.Euler(0, Random.Range(0, 360), 0);
+                tree.transform.parent = scenery.transform;
+            }
+        }
+
+        CreateMeshFromChildren(scenery, this.treeObj.GetComponent<MeshRenderer>().sharedMaterial);
+
         this.initialised = true;
     }
 
@@ -281,9 +313,22 @@ public class MapGenerator : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space) && !this.initialised) begin();
+        if (Input.GetKeyDown(KeyCode.Escape)) Application.Quit();
         if (initialised)
         {
+
+            if (Input.GetKeyDown(KeyCode.P))
+            {
+                if (this.controlsText.gameObject.activeSelf)
+                {
+                    this.controlsText.gameObject.SetActive(false);
+                }
+                else
+                {
+                    this.controlsText.gameObject.SetActive(true);
+                }
+            }
+
             this.startpos.transform.position = this.cam.GetComponent<Camera>().WorldToScreenPoint(this.start + Vector3.one * 0.5f);
             this.endpos.transform.position = this.cam.GetComponent<Camera>().WorldToScreenPoint(this.end + Vector3.one * 0.5f);
 
@@ -363,7 +408,7 @@ public class MapGenerator : MonoBehaviour
                                 obj.AddComponent<MeshCollider>();
                                 obj.GetComponent<MeshCollider>().sharedMesh = obj.GetComponent<MeshFilter>().mesh;
 
-                                obj.transform.position = new Vector3(x + 0.5f, y + 10, z + 0.5f);
+                                obj.transform.position = new Vector3(x + 0.5f + 10f, y + 10, z + 0.5f + 10f);
 
                                 StartCoroutine("moveToPosition", new object[] { obj, new Vector3(x + 0.5f, y, z + 0.5f) });
                                 // moveToPosition(obj, new Vector3(x + 0.5f, y, z + 0.5f));
@@ -485,7 +530,7 @@ public class MapGenerator : MonoBehaviour
                 }
             }
 
-            if (Input.GetKeyDown(KeyCode.N))
+            if (Input.GetKeyDown(KeyCode.N) && this.isBuilding)
             {
                 StartCoroutine(startWave());
             }
@@ -951,6 +996,13 @@ public class MapGenerator : MonoBehaviour
                 {
                     CreatePos(x, y, z, map, parent);
                 }
+            }
+        }
+        if (parent.transform.name == "Path")
+        {
+            foreach (Transform t in parent.transform)
+            {
+                t.transform.localScale = Vector3.one * 0.3f;
             }
         }
         CreateMeshFromChildren(parent, mat);
