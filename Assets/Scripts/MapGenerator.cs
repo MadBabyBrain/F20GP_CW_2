@@ -394,7 +394,10 @@ public class MapGenerator : MonoBehaviour
                     {
                         if (this.currentBuilding == 0)
                         {
-                            StartCoroutine(placeWall(x, y, z));
+                            if (hit.transform.parent.name == "Ground holder")
+                            {
+                                StartCoroutine(placeWall(x, y, z));
+                            }
                         }
                         else
                         {
@@ -419,7 +422,7 @@ public class MapGenerator : MonoBehaviour
 
                                 obj.transform.position = new Vector3(x + 0.5f + 10f, y + 10, z + 0.5f + 10f);
 
-                                StartCoroutine("moveToPosition", new object[] { obj, new Vector3(x + 0.5f, y, z + 0.5f) });
+                                StartCoroutine("moveToPosition", new object[] { obj, new Vector3(x + 0.5f, y + 0.15f, z + 0.5f) });
                                 // moveToPosition(obj, new Vector3(x + 0.5f, y, z + 0.5f));
 
                                 // if (obj.GetComponent<MeshCollider>() == null) obj.AddComponent<MeshCollider>();
@@ -577,10 +580,11 @@ public class MapGenerator : MonoBehaviour
     IEnumerator startWave()
     {
         this.isBuilding = false;
+        this.waveText.text = this.wave + " :Wave";
         // int numEnemies = (int)Mathf.Lerp(5, 100, this.wave * (1f / Mathf.Max(100, this.wave)));
         int numEnemies = Mathf.RoundToInt(10 * Mathf.Pow(this.wave, 0.3f));
         // int health = (int)Mathf.Lerp(10, 1000, this.wave * (1f / Mathf.Max(1000, this.wave)));
-        int health = Mathf.RoundToInt(Mathf.Pow(this.wave, 0.95f) + 9);
+        int health = Mathf.RoundToInt(Mathf.Pow(this.wave, 1.25f) + 9);
         // float speed = Mathf.Lerp(1, 5, this.wave * (1f / Mathf.Max(200, this.wave)));
         float speed = Mathf.Min(Mathf.Pow(this.wave, 0.23f), 5f);
 
@@ -598,10 +602,9 @@ public class MapGenerator : MonoBehaviour
         {
             spawnEnemy(i);
         }
-        yield return new WaitForSecondsRealtime(numEnemies);
+        yield return new WaitForSeconds(numEnemies);
         // CancelInvoke("spawnEnemy");
         InvokeRepeating("checkEnemy", 0f, 1f);
-        this.waveText.text = this.wave + " :Wave";
         this.wave++;
     }
 
@@ -641,7 +644,7 @@ public class MapGenerator : MonoBehaviour
             Destroy(t.gameObject);
         }
 
-        yield return new WaitForSecondsRealtime(0.1f);
+        yield return new WaitForSeconds(0.1f);
 
         CreatePath();
 
@@ -679,7 +682,7 @@ public class MapGenerator : MonoBehaviour
                 Destroy(t.gameObject);
             }
 
-            yield return new WaitForSecondsRealtime(0.1f);
+            yield return new WaitForSeconds(0.1f);
 
             CreatePath();
         }
@@ -708,7 +711,7 @@ public class MapGenerator : MonoBehaviour
             Destroy(t.gameObject);
         }
 
-        yield return new WaitForSecondsRealtime(0.1f);
+        yield return new WaitForSeconds(0.1f);
 
         CreatePath();
     }
@@ -1162,7 +1165,7 @@ public class MapGenerator : MonoBehaviour
         while (Vector3.Distance(obj.transform.position, pos) > 0.01f)
         {
             obj.transform.position = Vector3.MoveTowards(obj.transform.position, pos, 1f);
-            yield return new WaitForSecondsRealtime(0.013f);
+            yield return new WaitForSeconds(0.013f);
         }
 
     }

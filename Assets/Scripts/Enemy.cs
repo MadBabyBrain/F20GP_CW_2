@@ -14,7 +14,7 @@ public class Enemy : MonoBehaviour
     public float waitTime;
     public float distMoved;
 
-    
+
 
     public IEnumerator _init_(EnemyScriptableObject _stats, List<Vector3> _path, float waitTime)
     {
@@ -41,7 +41,8 @@ public class Enemy : MonoBehaviour
 
         this.cam = GameObject.Find("Main Camera").GetComponent<Camera>();
 
-        yield return new WaitForSecondsRealtime(waitTime);
+        // yield return new WaitForSecondsRealtime(waitTime);
+        yield return new WaitForSeconds(waitTime);
         this.transform.position = this.path[0] + Vector3.one * 0.5f;
         this.healthBar.SetActive(true);
     }
@@ -66,7 +67,7 @@ public class Enemy : MonoBehaviour
         this.distMoved += this.speed * Time.deltaTime;
 
         this.healthBar.transform.position = cam.WorldToScreenPoint(this.transform.position);
-        this.healthBar.transform.Find("GreenHealth").gameObject.GetComponent<Image>().fillAmount = (float)this.health/(float)this.maxHealth;
+        this.healthBar.transform.Find("GreenHealth").gameObject.GetComponent<Image>().fillAmount = (float)this.health / (float)this.maxHealth;
         this.healthBar.transform.Find("HealthText").gameObject.GetComponent<TextMeshProUGUI>().text = "HP: " + this.health + "/" + this.maxHealth;
 
         if (Vector3.Distance(this.transform.position, this.path[this.pathIndex] + Vector3.one * 0.5f) < 0.01f)
