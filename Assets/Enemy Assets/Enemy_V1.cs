@@ -19,7 +19,7 @@ public class Enemy_V1 : MonoBehaviour
         this.wait = waitTime;
         this.speed = speed;
         this.toDestroy = false;
-        GameObject o = GameObject.Find("Text");
+        GameObject o = GameObject.Find("HealthBar");
         this.health = GameObject.Instantiate(o, this.transform.position, Quaternion.identity);
         this.health.transform.name = "Enemy Health";
         this.health.SetActive(false);
@@ -60,7 +60,7 @@ public class Enemy_V1 : MonoBehaviour
         // this.transform.position = this.path[this.currPos] + Vector3.one * 0.5f;
         this.transform.position = Vector3.MoveTowards(this.transform.position, this.path[this.currPos] + Vector3.one * 0.5f, this.speed * Time.deltaTime);
         this.health.transform.position = cam.WorldToScreenPoint(this.transform.position);
-        this.health.GetComponent<TextMeshProUGUI>().text = "Health: " + this.hp;
+        //this.health.GetComponent<TextMeshProUGUI>().text = "Health: " + this.hp;
         // yield return new WaitForSecondsRealtime(1);
         // Debug.Log(Vector3.Distance(this.transform.position, this.path[this.currPos] + Vector3.one * 0.5f));
         if (Vector3.Distance(this.transform.position, this.path[this.currPos] + Vector3.one * 0.5f) < 0.01f)
@@ -79,7 +79,7 @@ public class Enemy_V1 : MonoBehaviour
         if (!this.toDestroy)
         {
             this.hp -= amount;
-            this.health.GetComponent<TextMeshProUGUI>().text = "Health: " + this.hp;
+            //this.health.GetComponent<TextMeshProUGUI>().text = "Health: " + this.hp;
             if (this.hp <= 0) { this.toDestroy = true; }
         }
     }
