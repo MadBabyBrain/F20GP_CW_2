@@ -69,12 +69,14 @@ public class MapGenerator : MonoBehaviour
     [SerializeField]
     private GameObject homebaseObj;
     private GameObject buildingObj;
+    [SerializeField]
+    private GameObject portal;
 
     [SerializeField] private List<GameObject> hotBarItems;
 
     /* ==================== ====================  ==================== ==================== */
 
-    TextMeshProUGUI moneyText, fpsText, controlsText;
+    TextMeshProUGUI moneyText, fpsText, controlsText, waveText;
     GameObject startpos, endpos;
 
     /* ==================== ====================  ==================== ==================== */
@@ -284,9 +286,16 @@ public class MapGenerator : MonoBehaviour
         this.moneyText = GameObject.Find("MoneyText").GetComponent<TextMeshProUGUI>();
         this.fpsText = GameObject.Find("fpsText").GetComponent<TextMeshProUGUI>();
         this.controlsText = GameObject.Find("Controls").GetComponent<TextMeshProUGUI>();
+        this.waveText = GameObject.Find("WaveText").GetComponent<TextMeshProUGUI>();
 
         this.moneyText.text = "Gold: " + this.money;
+        this.waveText.text = this.wave + " :Wave";
 
+
+
+        GameObject portal = GameObject.Instantiate(this.portal, this.eMovement[0] + Vector3.one * 0.5f + Vector3.up * 2f, Quaternion.identity);
+        portal.transform.rotation = Quaternion.Euler(0, 45, 0);
+        portal.transform.localScale = Vector3.one * 2f;
 
         InvokeRepeating("UpdateFPS", 1f, 0.5f);
 
@@ -568,9 +577,12 @@ public class MapGenerator : MonoBehaviour
     IEnumerator startWave()
     {
         this.isBuilding = false;
-        int numEnemies = (int)Mathf.Lerp(5, 100, this.wave * (1f / Mathf.Max(100, this.wave)));
-        int health = (int)Mathf.Lerp(10, 1000, this.wave * (1f / Mathf.Max(1000, this.wave)));
-        float speed = Mathf.Lerp(1, 5, this.wave * (1f / Mathf.Max(200, this.wave)));
+        // int numEnemies = (int)Mathf.Lerp(5, 100, this.wave * (1f / Mathf.Max(100, this.wave)));
+        int numEnemies = Mathf.RoundToInt(10 * Mathf.Pow(this.wave, 0.3f));
+        // int health = (int)Mathf.Lerp(10, 1000, this.wave * (1f / Mathf.Max(1000, this.wave)));
+        int health = Mathf.RoundToInt(Mathf.Pow(this.wave, 0.95f) + 9);
+        // float speed = Mathf.Lerp(1, 5, this.wave * (1f / Mathf.Max(200, this.wave)));
+        float speed = Mathf.Min(Mathf.Pow(this.wave, 0.23f), 5f);
 
         this.edata.speed = speed;
         this.edata.hp = health;
@@ -589,6 +601,7 @@ public class MapGenerator : MonoBehaviour
         yield return new WaitForSecondsRealtime(numEnemies);
         // CancelInvoke("spawnEnemy");
         InvokeRepeating("checkEnemy", 0f, 1f);
+        this.waveText.text = this.wave + " :Wave";
         this.wave++;
     }
 
