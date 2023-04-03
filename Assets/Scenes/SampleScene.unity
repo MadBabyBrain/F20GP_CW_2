@@ -2426,6 +2426,7 @@ GameObject:
   - component: {fileID: 1287456154}
   - component: {fileID: 1287456153}
   - component: {fileID: 1287456155}
+  - component: {fileID: 1287456156}
   m_Layer: 0
   m_Name: Main
   m_TagString: Ground
@@ -2548,6 +2549,26 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 0}
+--- !u!114 &1287456156
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1287456150}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5d01d321902a1b47842c93a9fba3a92, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  obj: {fileID: 6833828704446971394, guid: 1576bd6a8dba5254bb7ce1d2edb113c0, type: 3}
+  waitTime: 1
+  speed: 1
+  trail: {fileID: 0}
+  pathIndex: 0
+  waited: 0
+  initialised: 0
+  path: []
 --- !u!1 &1377448736
 GameObject:
   m_ObjectHideFlags: 0

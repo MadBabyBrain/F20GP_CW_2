@@ -465,6 +465,7 @@ public class MapGenerator : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.N))
         {
             StartCoroutine(startWave());
+            drawPathTrail();
         }
         if (Input.GetKeyDown(KeyCode.F)) { this.fastForward = !this.fastForward; }
         Time.timeScale = (this.fastForward) ? 4f : 1f;
@@ -493,6 +494,15 @@ public class MapGenerator : MonoBehaviour
 
         this.cam.transform.position = pos;
 
+    }
+
+    /* ================================================================================================================================ */
+
+    /* ================================================================================================================================ */
+
+    void drawPathTrail() {
+        PathTrail pt = gameObject.GetComponent<PathTrail>();
+        pt._init_(eMovement, 1.0f);
     }
 
     /* ================================================================================================================================ */
