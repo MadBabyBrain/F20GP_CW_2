@@ -1,16 +1,20 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 
 [SerializeField]
 public class Enemy : MonoBehaviour
 {
     public float health;
+    private float maxHealth;
     public float speed;
 
     public float waitTime;
     public float distMoved;
+
+    
 
     public IEnumerator _init_(EnemyScriptableObject _stats, List<Vector3> _path, float waitTime)
     {
@@ -21,24 +25,25 @@ public class Enemy : MonoBehaviour
 
         // set enemy parameters
         health = stats.hp;
+        this.maxHealth = stats.hp;
         speed = stats.speed;
 
         // metadata
         pathIndex = 1;
         initialised = true;
 
-        GameObject o = GameObject.Find("Text");
-        this.healthText = GameObject.Instantiate(o, this.transform.position, Quaternion.identity);
-        this.healthText.transform.name = "Enemy Health";
-        this.healthText.GetComponent<TextMeshProUGUI>().fontSize = 30;
-        this.healthText.transform.SetParent(GameObject.Find("Canvas").transform);
-        this.healthText.SetActive(false);
+        GameObject o = GameObject.Find("HealthBar");
+        this.healthBar = GameObject.Instantiate(o, this.transform.position, Quaternion.identity);
+        this.healthBar.transform.name = "Enemy Health";
+        //this.healthText.GetComponent<TextMeshProUGUI>().fontSize = 30;
+        this.healthBar.transform.SetParent(GameObject.Find("Canvas").transform);
+        this.healthBar.SetActive(false);
 
         this.cam = GameObject.Find("Main Camera").GetComponent<Camera>();
 
         yield return new WaitForSecondsRealtime(waitTime);
         this.transform.position = this.path[0] + Vector3.one * 0.5f;
-        this.healthText.SetActive(true);
+        this.healthBar.SetActive(true);
     }
 
     private void move()
@@ -46,7 +51,7 @@ public class Enemy : MonoBehaviour
         if (pathIndex == path.Count - 1)
         {
             GameObject.Find("HomeBase").GetComponent<HomeBaseLogic>().takeDamage(1);
-            Destroy(this.healthText);
+            Destroy(this.healthBar);
             Destroy(gameObject);
             return;
         }
@@ -60,8 +65,9 @@ public class Enemy : MonoBehaviour
 
         this.distMoved += this.speed * Time.deltaTime;
 
-        this.healthText.transform.position = cam.WorldToScreenPoint(this.transform.position);
-        this.healthText.GetComponent<TextMeshProUGUI>().text = "Health: " + this.health;
+        this.healthBar.transform.position = cam.WorldToScreenPoint(this.transform.position);
+        this.healthBar.transform.Find("GreenHealth").gameObject.GetComponent<Image>().fillAmount = (float)this.health/(float)this.maxHealth;
+        this.healthBar.transform.Find("HealthText").gameObject.GetComponent<TextMeshProUGUI>().text = "HP: " + this.health + "/" + this.maxHealth;
 
         if (Vector3.Distance(this.transform.position, this.path[this.pathIndex] + Vector3.one * 0.5f) < 0.01f)
         {
@@ -99,7 +105,7 @@ public class Enemy : MonoBehaviour
         {
             this.alive = false;
             GameObject.Find("Main").GetComponent<MapGenerator>().addMoney(5);
-            Destroy(this.healthText);
+            Destroy(this.healthBar);
             Destroy(gameObject);
         }
     }
@@ -115,7 +121,7 @@ public class Enemy : MonoBehaviour
     public List<Vector3> path;
     public int pathIndex;
     public bool initialised = false;   // used to determine if _init_() has been called and member fields have been set
-    public GameObject healthText;
+    public GameObject healthBar;
     public Camera cam;
     public bool alive = true;
 
