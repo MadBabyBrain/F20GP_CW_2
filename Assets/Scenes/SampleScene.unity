@@ -1221,7 +1221,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -163, y: 225}
-  m_SizeDelta: {x: 200, y: 50}
+  m_SizeDelta: {x: 750, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &327812798
 MonoBehaviour:
@@ -1243,7 +1243,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Game Name
+  m_text: Cosmic Guardian
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -5157,7 +5157,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 5ec574fa197c9ab4481b87a987c09787, type: 2}
   money: 0
   isBuilding: 0
-  homebaseObj: {fileID: 5117763982277661055, guid: 8c7fb637903ebda479f5bd1505f9b4eb, type: 3}
+  homebaseObj: {fileID: 8490930501582216609, guid: dd97d6714dfc8894f828ccff4a3d195c, type: 3}
   portal: {fileID: 4617036660772024948, guid: 52c7d057cba585641bb68312c10d7791, type: 3}
   hotBarItems:
   - {fileID: 2005022273}
@@ -7885,11 +7885,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6546342941477604294, guid: f0fcefff7a34d084d91a25c35b00026e, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -992
+      value: -153
       objectReference: {fileID: 0}
     - target: {fileID: 6546342941477604294, guid: f0fcefff7a34d084d91a25c35b00026e, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -168
+      value: -1263
       objectReference: {fileID: 0}
     - target: {fileID: 6546342941477604294, guid: f0fcefff7a34d084d91a25c35b00026e, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x

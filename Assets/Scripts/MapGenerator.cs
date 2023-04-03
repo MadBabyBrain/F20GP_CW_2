@@ -224,9 +224,9 @@ public class MapGenerator : MonoBehaviour
         }
 
         GameObject homebase = GameObject.Instantiate(this.homebaseObj, Vector3.zero, Quaternion.identity);
-        homebase.name = homebase.name.Replace("(Clone)", "");
+        homebase.name = "HomeBase";
         homebase.transform.parent = this.transform;
-        homebase.transform.position = eMovement[eMovement.Count - 1] + Vector3.one * 0.5f;
+        homebase.transform.position = eMovement[eMovement.Count - 1] + new Vector3(0.5f, 0.25f, 0.5f);
 
         enemyObj = new GameObject();
         enemyObj.transform.parent = this.transform;
